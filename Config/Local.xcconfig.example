@@ -1,0 +1,5 @@
+// Copy this file to Local.xcconfig and provide a client configuration used by
+// the Eight Sleep mobile OAuth endpoint. Never commit Local.xcconfig.
+EIGHT_SLEEP_CLIENT_ID =
+EIGHT_SLEEP_CLIENT_SECRET =
+DEVELOPMENT_TEAM =

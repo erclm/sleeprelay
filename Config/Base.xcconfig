@@ -1,0 +1,7 @@
+// Safe defaults allow a clean checkout to build without private local config.
+EIGHT_SLEEP_CLIENT_ID =
+EIGHT_SLEEP_CLIENT_SECRET =
+DEVELOPMENT_TEAM =
+
+// Optional local values. This file is ignored by Git.
+#include? "Local.xcconfig"

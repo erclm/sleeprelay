@@ -1,0 +1,411 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */; };
+		7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7403F325772D97732985AB5E /* SleepDataView.swift */; };
+		9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */; };
+		AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136BACF6FD89CDE9CEF659CD /* AppView.swift */; };
+		C68A3675955012165827B32B /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0467B3B1E727164EF55A06 /* AppModel.swift */; };
+		CF79D75288FCE5C58E79F1AD /* SleepRelayCore in Frameworks */ = {isa = PBXBuildFile; productRef = 551F4F6729E3E6D6A2C9D5F3 /* SleepRelayCore */; };
+		D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */; };
+		F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0EBF151AA30B58400E420CE5 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRelayApp.swift; sourceTree = "<group>"; };
+		136BACF6FD89CDE9CEF659CD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
+		48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepNightDetailView.swift; sourceTree = "<group>"; };
+		513E2975E07FDA255573B68C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7403F325772D97732985AB5E /* SleepDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDataView.swift; sourceTree = "<group>"; };
+		8C0467B3B1E727164EF55A06 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
+		9E46681F9EB0CE8CE6B2ACEC /* SleepRelay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SleepRelay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		F478E4DD925E35E408C23703 /* SleepRelayCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SleepRelayCore; path = Packages/SleepRelayCore; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58579EC0CD991A8AFB482345 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF79D75288FCE5C58E79F1AD /* SleepRelayCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		181D26E647DD2CA91B197979 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				F478E4DD925E35E408C23703 /* SleepRelayCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		416CB462340298072AEA89F1 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				619F2F6934253618E31829D3 /* About */,
+				C107CB7A55BE23566F1F3A32 /* Connection */,
+				50E51ECCF60FB3BA003574A4 /* Data */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		4DE94F5A5D35B03D7604E310 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E46681F9EB0CE8CE6B2ACEC /* SleepRelay.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		50E51ECCF60FB3BA003574A4 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				7403F325772D97732985AB5E /* SleepDataView.swift */,
+				48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		619F2F6934253618E31829D3 /* About */ = {
+			isa = PBXGroup;
+			children = (
+				C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */,
+			);
+			path = About;
+			sourceTree = "<group>";
+		};
+		C107CB7A55BE23566F1F3A32 /* Connection */ = {
+			isa = PBXGroup;
+			children = (
+				927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */,
+			);
+			path = Connection;
+			sourceTree = "<group>";
+		};
+		DEEC54A4D40B1491AD1450EF = {
+			isa = PBXGroup;
+			children = (
+				F7CFC8337A6CB62B1F7A3766 /* App */,
+				E27071E91674447D4E553DB7 /* Config */,
+				181D26E647DD2CA91B197979 /* Packages */,
+				4DE94F5A5D35B03D7604E310 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E27071E91674447D4E553DB7 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				0EBF151AA30B58400E420CE5 /* Base.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		F7CFC8337A6CB62B1F7A3766 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				8C0467B3B1E727164EF55A06 /* AppModel.swift */,
+				136BACF6FD89CDE9CEF659CD /* AppView.swift */,
+				513E2975E07FDA255573B68C /* Info.plist */,
+				11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */,
+				416CB462340298072AEA89F1 /* Features */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D8505DBA3CAC26FB1CD628F3 /* SleepRelay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51E069B1AD8E1B180D56280A /* Build configuration list for PBXNativeTarget "SleepRelay" */;
+			buildPhases = (
+				D319D273ABFE912F21A30A28 /* Sources */,
+				58579EC0CD991A8AFB482345 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SleepRelay;
+			packageProductDependencies = (
+				551F4F6729E3E6D6A2C9D5F3 /* SleepRelayCore */,
+			);
+			productName = SleepRelay;
+			productReference = 9E46681F9EB0CE8CE6B2ACEC /* SleepRelay.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3BC94D522291CCCDD471AED8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					D8505DBA3CAC26FB1CD628F3 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C07376250A928D4CC56C5966 /* Build configuration list for PBXProject "SleepRelay" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = DEEC54A4D40B1491AD1450EF;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				21B970D836F70FAC732A072E /* XCLocalSwiftPackageReference "Packages/SleepRelayCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4DE94F5A5D35B03D7604E310 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D8505DBA3CAC26FB1CD628F3 /* SleepRelay */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D319D273ABFE912F21A30A28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */,
+				C68A3675955012165827B32B /* AppModel.swift in Sources */,
+				AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */,
+				9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */,
+				7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */,
+				D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */,
+				F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		02A28413F6089A62160E62C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.sleeprelay.ios;
+				PRODUCT_NAME = "Sleep Relay";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		7D326337CD4AC322116634E5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A4DA775360C21FD1CF0DF26B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.sleeprelay.ios;
+				PRODUCT_NAME = "Sleep Relay";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		DF716271C5FDE49CC8442371 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		51E069B1AD8E1B180D56280A /* Build configuration list for PBXNativeTarget "SleepRelay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4DA775360C21FD1CF0DF26B /* Debug */,
+				02A28413F6089A62160E62C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C07376250A928D4CC56C5966 /* Build configuration list for PBXProject "SleepRelay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7D326337CD4AC322116634E5 /* Debug */,
+				DF716271C5FDE49CC8442371 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		21B970D836F70FAC732A072E /* XCLocalSwiftPackageReference "Packages/SleepRelayCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SleepRelayCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		551F4F6729E3E6D6A2C9D5F3 /* SleepRelayCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SleepRelayCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3BC94D522291CCCDD471AED8 /* Project object */;
+}
