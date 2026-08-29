@@ -5,6 +5,7 @@ struct AboutView: View {
     List {
       Section("Current build") {
         Label("Eight Sleep reads only", systemImage: "arrow.down.circle")
+        Label("HealthKit coverage reads only", systemImage: "heart.text.square")
         Label("No HealthKit writes", systemImage: "heart.slash")
         Label("No saved account password", systemImage: "key.slash")
         Label("No Sleep Relay server", systemImage: "externaldrive.badge.xmark")

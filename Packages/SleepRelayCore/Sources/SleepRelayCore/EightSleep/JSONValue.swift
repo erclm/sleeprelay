@@ -78,3 +78,19 @@ extension Dictionary where Key == String, Value == JSONValue {
     paths.lazy.compactMap { value(at: $0)?.stringValue }.first
   }
 }
+
+func sanitizedFieldKey(_ key: String) -> String {
+  let lowercased = key.lowercased()
+  let identifierPrefixes = ["user-", "session-", "device-", "account-"]
+  let isLongHexIdentifier = key.count >= 16 && key.allSatisfy(\.isHexDigit)
+  let isUUID = UUID(uuidString: key) != nil
+
+  if key.contains("@")
+    || isLongHexIdentifier
+    || isUUID
+    || identifierPrefixes.contains(where: lowercased.hasPrefix)
+  {
+    return "{identifier}"
+  }
+  return key
+}

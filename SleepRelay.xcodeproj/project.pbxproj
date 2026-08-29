@@ -7,13 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		13F60FBE2241FBD9F77B3182 /* HealthCoverageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */; };
+		1F75A3B7C261D16D9500CCEF /* HealthCoverageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD1242DA667509AC42B804C /* HealthCoverageView.swift */; };
+		43357E6FF4BB49A04BAFF73A /* HealthKitCoverageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */; };
 		54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */; };
 		7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7403F325772D97732985AB5E /* SleepDataView.swift */; };
 		9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */; };
+		9E1A6112F5799DB3A78859C3 /* HealthCoverageProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */; };
 		AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136BACF6FD89CDE9CEF659CD /* AppView.swift */; };
+		B8A3893E894D8E854BCCC440 /* FixtureHealthCoverageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20D5913C87DEAB38CDDF454 /* FixtureHealthCoverageProvider.swift */; };
 		C68A3675955012165827B32B /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0467B3B1E727164EF55A06 /* AppModel.swift */; };
 		CF79D75288FCE5C58E79F1AD /* SleepRelayCore in Frameworks */ = {isa = PBXBuildFile; productRef = 551F4F6729E3E6D6A2C9D5F3 /* SleepRelayCore */; };
 		D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */; };
+		E712497D9FC49E0D710BDA41 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF051D339B3D447E0890A032 /* Assets.xcassets */; };
 		F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -21,13 +27,20 @@
 		0EBF151AA30B58400E420CE5 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRelayApp.swift; sourceTree = "<group>"; };
 		136BACF6FD89CDE9CEF659CD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
+		2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageProviding.swift; sourceTree = "<group>"; };
+		3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageModel.swift; sourceTree = "<group>"; };
 		48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepNightDetailView.swift; sourceTree = "<group>"; };
 		513E2975E07FDA255573B68C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitCoverageProvider.swift; sourceTree = "<group>"; };
 		7403F325772D97732985AB5E /* SleepDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDataView.swift; sourceTree = "<group>"; };
+		8982895A4FC50936DE156F5E /* SleepRelay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SleepRelay.entitlements; sourceTree = "<group>"; };
 		8C0467B3B1E727164EF55A06 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
+		9AD1242DA667509AC42B804C /* HealthCoverageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageView.swift; sourceTree = "<group>"; };
 		9E46681F9EB0CE8CE6B2ACEC /* SleepRelay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SleepRelay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF051D339B3D447E0890A032 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		F20D5913C87DEAB38CDDF454 /* FixtureHealthCoverageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureHealthCoverageProvider.swift; sourceTree = "<group>"; };
 		F478E4DD925E35E408C23703 /* SleepRelayCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SleepRelayCore; path = Packages/SleepRelayCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -57,6 +70,7 @@
 				619F2F6934253618E31829D3 /* About */,
 				C107CB7A55BE23566F1F3A32 /* Connection */,
 				50E51ECCF60FB3BA003574A4 /* Data */,
+				8843CD0BF8AE6A0CC0B5F782 /* Health */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -86,12 +100,31 @@
 			path = About;
 			sourceTree = "<group>";
 		};
+		8843CD0BF8AE6A0CC0B5F782 /* Health */ = {
+			isa = PBXGroup;
+			children = (
+				3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */,
+				9AD1242DA667509AC42B804C /* HealthCoverageView.swift */,
+			);
+			path = Health;
+			sourceTree = "<group>";
+		};
 		C107CB7A55BE23566F1F3A32 /* Connection */ = {
 			isa = PBXGroup;
 			children = (
 				927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */,
 			);
 			path = Connection;
+			sourceTree = "<group>";
+		};
+		CC29E1D0D248C204C6610131 /* HealthKit */ = {
+			isa = PBXGroup;
+			children = (
+				F20D5913C87DEAB38CDDF454 /* FixtureHealthCoverageProvider.swift */,
+				2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */,
+				5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */,
+			);
+			path = HealthKit;
 			sourceTree = "<group>";
 		};
 		DEEC54A4D40B1491AD1450EF = {
@@ -117,9 +150,12 @@
 			children = (
 				8C0467B3B1E727164EF55A06 /* AppModel.swift */,
 				136BACF6FD89CDE9CEF659CD /* AppView.swift */,
+				AF051D339B3D447E0890A032 /* Assets.xcassets */,
 				513E2975E07FDA255573B68C /* Info.plist */,
+				8982895A4FC50936DE156F5E /* SleepRelay.entitlements */,
 				11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */,
 				416CB462340298072AEA89F1 /* Features */,
+				CC29E1D0D248C204C6610131 /* HealthKit */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -132,6 +168,7 @@
 			buildConfigurationList = 51E069B1AD8E1B180D56280A /* Build configuration list for PBXNativeTarget "SleepRelay" */;
 			buildPhases = (
 				D319D273ABFE912F21A30A28 /* Sources */,
+				ECB4CD1FCAC4C1921956537A /* Resources */,
 				58579EC0CD991A8AFB482345 /* Frameworks */,
 			);
 			buildRules = (
@@ -183,6 +220,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		ECB4CD1FCAC4C1921956537A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E712497D9FC49E0D710BDA41 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D319D273ABFE912F21A30A28 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -192,6 +240,11 @@
 				C68A3675955012165827B32B /* AppModel.swift in Sources */,
 				AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */,
 				9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */,
+				B8A3893E894D8E854BCCC440 /* FixtureHealthCoverageProvider.swift in Sources */,
+				13F60FBE2241FBD9F77B3182 /* HealthCoverageModel.swift in Sources */,
+				9E1A6112F5799DB3A78859C3 /* HealthCoverageProviding.swift in Sources */,
+				1F75A3B7C261D16D9500CCEF /* HealthCoverageView.swift in Sources */,
+				43357E6FF4BB49A04BAFF73A /* HealthKitCoverageProvider.swift in Sources */,
 				7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */,
 				D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */,
 				F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */,
@@ -206,9 +259,10 @@
 			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/SleepRelay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -294,9 +348,10 @@
 			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/SleepRelay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

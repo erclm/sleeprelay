@@ -51,6 +51,24 @@ struct EightSleepPayloadDecoderTests {
     #expect(night.timeSeries.first?.name == "heartRate")
     #expect(night.timeSeries.first?.sampleCount == 2)
     #expect(night.timeSeries.first?.latestNumericValue == 56)
+    #expect(night.timeSeries.first?.numericSamples.count == 2)
+    #expect(
+      night.metricFields.contains(
+        EightSleepMetricField(path: "sleepQualityScore.heartRate.average", value: 57)
+      )
+    )
+  }
+
+  @Test
+  func discoversAnUnrecognizedNestedRestingHeartRateFieldWithoutRawPayloadStorage() throws {
+    let data = Data(
+      #"{"days":[{"day":"2026-08-28","biometrics":{"rhr":55},"sessions":[]}]}"#.utf8
+    )
+
+    let night = try #require(EightSleepPayloadDecoder.decodeTrends(data).first)
+
+    #expect(night.explicitRestingHeartRateBPM == 55)
+    #expect(night.metricFields == [EightSleepMetricField(path: "biometrics.rhr", value: 55)])
   }
 
   @Test

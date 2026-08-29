@@ -1,6 +1,6 @@
 # Sleep Relay implementation plan
 
-Status: implementation — read-only live-data prototype
+Status: implementation — read-only Eight and HealthKit coverage prototype
 Last verified: 2026-08-29
 Repository license: MPL-2.0
 
@@ -236,11 +236,20 @@ Phase B — inspect the user's own payload:
 
 - use an established open-source community client or documented request shape
   to fetch one completed session;
-- inspect `/users/{id}/intervals/{sessionID}` or its current replacement;
+- inspect the V2 trends response first and request any additional endpoint only
+  after its current path is verified from maintained source or live app traffic;
 - redact account IDs, names, emails, device IDs, and tokens;
 - record only the smallest representative fixture needed for tests;
 - determine whether RHR is explicit or must be derived;
 - determine whether HRV data is RMSSD aggregates or true beat intervals.
+
+Current endpoint research (2026-08-29): maintained community clients pyEight
+and eightctl retrieve nightly heart rate, HRV, respiratory rate, and embedded
+heart-rate samples from `GET /v1/users/{id}/trends`. eightctl also implements
+the read-only `GET /v1/users/{id}/intervals/{sessionID}` path. No separate RHR
+endpoint or evidence that the intervals response contains raw NN/RR intervals
+was found. Sleep Relay now probes both verified GET paths, retains only
+sanitized field and series summaries, and does not guess additional paths.
 
 Phase C — on-device client:
 
@@ -396,12 +405,22 @@ Observed on 2026-08-29:
 - the Personal Team is selected through the ignored local xcconfig;
 - live Eight authentication and recent-trend retrieval were validated in the
   Simulator on 2026-08-29, returning three available nights without saving a
-  payload; and
+  payload;
 - a physical iPhone is paired with Developer Mode enabled;
 - Xcode created a valid Apple Development signing identity and automatic device
-  provisioning profile for `app.sleeprelay.ios`; and
+  provisioning profile for `app.sleeprelay.ios`;
 - the signed read-only prototype was installed and launched successfully on the
-  physical iPhone on 2026-08-29.
+  physical iPhone on 2026-08-29;
+- the HealthKit coverage build was signed with the HealthKit entitlement, then
+  installed and launched on the paired iPhone on 2026-08-29; and
+- the paid Apple Developer Program membership is active in App Store Connect;
+- an App Store Connect app record and automatic internal TestFlight group were
+  created; and
+- version 0.1.0 build 1 was uploaded, processed, and assigned to the account
+  holder for internal testing on 2026-08-29; and
+- version 0.1.0 build 2 passes core tests and archives successfully, but its
+  App Store Connect export is pending because Xcode requires the saved Apple
+  Account credential to be refreshed.
 
 ### 8.2 One-time local setup
 
@@ -446,16 +465,19 @@ contributor can either open the project directly or regenerate it.
    Store distribution; local capability availability depends on the selected
    signing team.
 
-The target needs clear purpose strings:
+App Store Connect validation requires both HealthKit purpose strings whenever
+the HealthKit entitlement is present, even though the current build requests an
+empty write-authorization set:
 
 ```text
 NSHealthShareUsageDescription
 Sleep Relay reads selected sleep and heart metrics to identify gaps and avoid
 duplicating data already visible in Apple Health.
+```
 
 NSHealthUpdateUsageDescription
-Sleep Relay writes only the Eight Sleep metrics you explicitly enable, such as
-a supported overnight resting-heart-rate measurement.
+Sleep Relay does not write or update Apple Health data in this read-only build.
+Future write features will require separate, explicit permission.
 ```
 
 HealthKit checks and real-source behavior must ultimately be tested on an
@@ -485,7 +507,7 @@ the normal shell without a `DEVELOPER_DIR` override.
 - [x] Create the iOS app and pure Swift core targets.
 - [x] Add an app target and pure Swift unit-test target.
 - [ ] Add an app UI-test target.
-- [ ] Add HealthKit entitlement and read-purpose description when HealthKit
+- [x] Add HealthKit entitlement and read-purpose description when HealthKit
   coverage work begins; do not request write permission in the read-only build.
 - [x] Wire app dependencies with protocols and fixture implementations.
 - [x] Add Connect, Eight Data, and About screens with deterministic previews.
@@ -509,22 +531,31 @@ does not import HealthKit.
 
 ### Milestone 3 — HealthKit coverage audit
 
-- [ ] Check `HKHealthStore.isHealthDataAvailable()`.
-- [ ] Request only the read and write types needed by enabled features.
-- [ ] Query recent samples and group them by night, type, and source.
-- [ ] Display observed source names and bundle identifiers.
-- [ ] Represent no-visible-data honestly despite permission ambiguity.
-- [ ] Implement a fake Health store for previews and tests.
+- [x] Check `HKHealthStore.isHealthDataAvailable()`.
+- [x] Request only the five read types needed by the coverage audit, with an
+  empty write-authorization set.
+- [x] Query recent samples and group them by night, type, and source.
+- [x] Display observed source names and bundle identifiers.
+- [x] Represent no-visible-data honestly despite permission ambiguity.
+- [x] Implement a fake Health store for previews and tests.
+
+Implementation, Simulator UI verification, and signed-device installation and
+launch are complete. User-triggered on-device authorization and validation
+against real source coverage remain pending.
 
 Exit criterion: on an iPhone, the app shows visible source coverage without
 writing any HealthKit data.
 
 ### Milestone 4 — RHR dry run
 
-- [ ] Decode an explicit RHR fixture if the live schema provides one.
-- [ ] Implement the provisional lowest rolling-median candidate as a separate,
-  versioned strategy if derivation is needed.
-- [ ] Display inputs, selected window, result, and rejection reasons.
+- [x] Decode known explicit RHR paths and adaptively discover a nested RHR-like
+  numeric path in synthetic decoder tests. Live schema evidence is still
+  required before treating any discovered value as authoritative.
+- [x] Implement a timestamp-aware 15-minute low-median experiment as the
+  separate `presence-low-median-v0` strategy.
+- [x] Display input statistics, result, limitations, and rejection reasons, and
+  generate a sanitized share report. Selected-window inspection and
+  confirmed-asleep filtering remain pending.
 - [ ] Compare candidate output with Eight's displayed value over 7 to 14 nights.
 - [ ] Document the chosen mapping or decide not to write it.
 
@@ -536,12 +567,16 @@ are still disabled.
 - [ ] Capture and sanitize one real completed-session response.
 - [x] Validate read-only live login and recent-trend retrieval; the account
   returned three available nights on 2026-08-29. No real payload was saved.
+- [x] Add in-memory metric-path discovery and a sanitized report that excludes
+  credentials, tokens, raw identifiers, exact timestamps, and raw payload data.
 - [x] Document and implement the current password-grant and V2 trends request
   shape behind a provider protocol.
 - [x] Keep the password and short-lived token in memory only for the prototype;
   revisit optional Keychain persistence only after the read flow is validated.
 - [x] Implement recent completed-night trend retrieval.
-- [ ] Implement interval retrieval after a real session identifier is verified.
+- [x] Implement best-effort, read-only interval retrieval for session IDs from
+  the trends response; sanitize the response into field names, matched scalar
+  metrics, and numeric series statistics rather than retaining raw JSON.
 - [x] Handle token expiry, rate-limit errors, schema failures, and disconnect.
 - [ ] Confirm whether raw beat intervals exist.
 
@@ -684,6 +719,11 @@ Initial decisions:
   memory-only; no password or token persistence.
 - **Validated for prototype:** live read-only authentication and recent V2
   trend retrieval work in Simulator; three available nights were displayed.
+- **Observed for one night:** no explicit RHR field was decoded, average sleeping
+  HR did not equal the Eight app's displayed RHR, and RMSSD remained distinct
+  from HealthKit SDNN.
+- **Accepted for validation:** the app shares only a sanitized trends summary;
+  user credentials and raw responses are never requested in chat.
 - **Accepted for prototype:** iOS 17 minimum deployment target.
 - **Pending evidence:** live Eight payload shape and RHR semantics.
 - **Pending decision:** final bundle identifier and signing team.

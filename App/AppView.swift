@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AppView: View {
   @Bindable var model: AppModel
+  @Bindable var healthModel: HealthCoverageModel
 
   var body: some View {
     TabView(selection: $model.selectedTab) {
@@ -18,6 +19,12 @@ struct AppView: View {
       .tag(AppTab.data)
 
       NavigationStack {
+        HealthCoverageView(model: healthModel)
+      }
+      .tabItem { Label("Health", systemImage: "heart.text.square") }
+      .tag(AppTab.health)
+
+      NavigationStack {
         AboutView()
       }
       .tabItem { Label("About", systemImage: "info.circle") }
@@ -27,5 +34,5 @@ struct AppView: View {
 }
 
 #Preview("Loaded") {
-  AppView(model: .preview)
+  AppView(model: .preview, healthModel: .preview)
 }

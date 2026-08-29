@@ -49,7 +49,18 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
   public let deepSleepSeconds: Double?
   public let remSleepSeconds: Double?
   public let availableFields: [String]
+  public let metricFields: [EightSleepMetricField]
   public let timeSeries: [EightSleepTimeSeries]
+  public let latestSessionID: String?
+  public internal(set) var intervalProbe: EightSleepIntervalProbe?
+
+  public var discoveredRestingHeartRateBPM: Double? {
+    explicitRestingHeartRateBPM
+      ?? intervalProbe?.metricFields.first(where: { field in
+        let normalized = field.path.lowercased().filter(\.isLetter)
+        return normalized.contains("restingheartrate") || normalized.hasSuffix("rhr")
+      })?.value
+  }
 
   public init(
     id: String,
@@ -68,7 +79,10 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
     deepSleepSeconds: Double?,
     remSleepSeconds: Double?,
     availableFields: [String],
-    timeSeries: [EightSleepTimeSeries]
+    metricFields: [EightSleepMetricField],
+    timeSeries: [EightSleepTimeSeries],
+    latestSessionID: String?,
+    intervalProbe: EightSleepIntervalProbe?
   ) {
     self.id = id
     self.day = day
@@ -86,7 +100,32 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
     self.deepSleepSeconds = deepSleepSeconds
     self.remSleepSeconds = remSleepSeconds
     self.availableFields = availableFields
+    self.metricFields = metricFields
     self.timeSeries = timeSeries
+    self.latestSessionID = latestSessionID
+    self.intervalProbe = intervalProbe
+  }
+}
+
+public struct EightSleepMetricField: Identifiable, Hashable, Sendable {
+  public var id: String { path }
+
+  public let path: String
+  public let value: Double
+
+  public init(path: String, value: Double) {
+    self.path = path
+    self.value = value
+  }
+}
+
+public struct EightSleepTimeSeriesSample: Hashable, Sendable {
+  public let timestamp: Date
+  public let value: Double
+
+  public init(timestamp: Date, value: Double) {
+    self.timestamp = timestamp
+    self.value = value
   }
 }
 
@@ -98,6 +137,7 @@ public struct EightSleepTimeSeries: Identifiable, Hashable, Sendable {
   public let firstTimestamp: Date?
   public let lastTimestamp: Date?
   public let latestNumericValue: Double?
+  public let numericSamples: [EightSleepTimeSeriesSample]
 
   public init(
     id: String,
@@ -106,7 +146,8 @@ public struct EightSleepTimeSeries: Identifiable, Hashable, Sendable {
     sampleCount: Int,
     firstTimestamp: Date?,
     lastTimestamp: Date?,
-    latestNumericValue: Double?
+    latestNumericValue: Double?,
+    numericSamples: [EightSleepTimeSeriesSample]
   ) {
     self.id = id
     self.sessionID = sessionID
@@ -115,5 +156,70 @@ public struct EightSleepTimeSeries: Identifiable, Hashable, Sendable {
     self.firstTimestamp = firstTimestamp
     self.lastTimestamp = lastTimestamp
     self.latestNumericValue = latestNumericValue
+    self.numericSamples = numericSamples
+  }
+}
+
+public enum EightSleepIntervalProbeStatus: Equatable, Hashable, Sendable {
+  case available
+  case unavailable(reason: String)
+
+  public var label: String {
+    switch self {
+    case .available: "Available"
+    case .unavailable(let reason): reason
+    }
+  }
+}
+
+public struct EightSleepSeriesSummary: Identifiable, Hashable, Sendable {
+  public var id: String { path }
+
+  public let path: String
+  public let sampleCount: Int
+  public let minimum: Double
+  public let median: Double
+  public let maximum: Double
+
+  public init(
+    path: String,
+    sampleCount: Int,
+    minimum: Double,
+    median: Double,
+    maximum: Double
+  ) {
+    self.path = path
+    self.sampleCount = sampleCount
+    self.minimum = minimum
+    self.median = median
+    self.maximum = maximum
+  }
+}
+
+public struct EightSleepIntervalProbe: Hashable, Sendable {
+  public let status: EightSleepIntervalProbeStatus
+  public let fieldPaths: [String]
+  public let metricFields: [EightSleepMetricField]
+  public let series: [EightSleepSeriesSummary]
+
+  public init(
+    status: EightSleepIntervalProbeStatus,
+    fieldPaths: [String],
+    metricFields: [EightSleepMetricField],
+    series: [EightSleepSeriesSummary]
+  ) {
+    self.status = status
+    self.fieldPaths = fieldPaths
+    self.metricFields = metricFields
+    self.series = series
+  }
+
+  public static func unavailable(_ reason: String) -> EightSleepIntervalProbe {
+    EightSleepIntervalProbe(
+      status: .unavailable(reason: reason),
+      fieldPaths: [],
+      metricFields: [],
+      series: []
+    )
   }
 }

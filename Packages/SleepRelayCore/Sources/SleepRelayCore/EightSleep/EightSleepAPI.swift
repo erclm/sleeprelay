@@ -234,7 +234,61 @@ public actor EightSleepHTTPClient: EightSleepProviding {
       throw EightSleepAPIError.server(statusCode: response.statusCode)
     }
 
-    let nights = try EightSleepPayloadDecoder.decodeTrends(data)
+    var nights = try EightSleepPayloadDecoder.decodeTrends(data)
+    for index in nights.indices {
+      guard let sessionID = nights[index].latestSessionID else { continue }
+      do {
+        let result = try await fetchIntervalProbe(
+          sessionID: sessionID,
+          session: session
+        )
+        nights[index].intervalProbe = result.probe
+        if result.shouldStop {
+          break
+        }
+      } catch is CancellationError {
+        throw CancellationError()
+      } catch {
+        nights[index].intervalProbe = .unavailable("Request failed")
+        break
+      }
+    }
     return EightSleepSnapshot(fetchedAt: Date(), nights: nights)
+  }
+
+  private func fetchIntervalProbe(
+    sessionID: String,
+    session: Session
+  ) async throws -> (probe: EightSleepIntervalProbe, shouldStop: Bool) {
+    let url = configuration.clientAPIBaseURL
+      .appendingPathComponent("users")
+      .appendingPathComponent(session.userID)
+      .appendingPathComponent("intervals")
+      .appendingPathComponent(sessionID)
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.setValue("Bearer \(session.token)", forHTTPHeaderField: "Authorization")
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue("SleepRelay/0.1", forHTTPHeaderField: "User-Agent")
+
+    let (data, response) = try await transport.data(for: request)
+    switch response.statusCode {
+    case 200..<300:
+      do {
+        return (try EightSleepIntervalProbeDecoder.decode(data), false)
+      } catch {
+        return (.unavailable("Unexpected response shape"), true)
+      }
+    case 401:
+      self.session = nil
+      return (.unavailable("Session expired"), true)
+    case 404:
+      return (.unavailable("Endpoint unavailable (HTTP 404)"), true)
+    case 429:
+      return (.unavailable("Rate limited"), true)
+    default:
+      return (.unavailable("HTTP \(response.statusCode)"), true)
+    }
   }
 }

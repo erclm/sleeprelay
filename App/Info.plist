@@ -24,6 +24,12 @@
 	<string>$(EIGHT_SLEEP_CLIENT_ID)</string>
 	<key>EightSleepClientSecret</key>
 	<string>$(EIGHT_SLEEP_CLIENT_SECRET)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Sleep Relay reads selected sleep and heart metrics to identify gaps and avoid duplicating data already visible in Apple Health. It does not write or delete Health data in this build.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Sleep Relay does not write or update Apple Health data in this read-only build. Future write features will require separate, explicit permission.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

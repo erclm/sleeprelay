@@ -5,6 +5,7 @@ import SleepRelayCore
 enum AppTab: Hashable {
   case connect
   case data
+  case health
   case about
 }
 

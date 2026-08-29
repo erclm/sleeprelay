@@ -30,6 +30,15 @@ public enum EightSleepPayloadDecoder {
       object.firstString(at: [["id"], ["sessionId"]])
       ?? sessionID
       ?? "\(day)-\(fallbackIndex)"
+    let metricFields = decodeMetricFields(object)
+    let explicitRestingHeartRate =
+      object.firstNumber(at: [
+        ["restingHeartRate"],
+        ["restingHeartRateBpm"],
+        ["sleepQualityScore", "restingHeartRate", "current"],
+        ["sleepQualityScore", "restingHeartRate", "average"],
+      ])
+      ?? metricFields.first(where: isRestingHeartRateField)?.value
 
     return EightSleepNight(
       id: identifier,
@@ -46,11 +55,7 @@ public enum EightSleepPayloadDecoder {
         ["sleepQualityScore", "heartRate", "average"],
         ["heartRate"],
       ]),
-      explicitRestingHeartRateBPM: object.firstNumber(at: [
-        ["restingHeartRate"],
-        ["restingHeartRateBpm"],
-        ["sleepQualityScore", "restingHeartRate", "average"],
-      ]),
+      explicitRestingHeartRateBPM: explicitRestingHeartRate,
       reportedHRVMilliseconds: object.firstNumber(at: [
         ["sleepQualityScore", "hrv", "current"],
         ["sleepQualityScore", "hrv", "average"],
@@ -64,8 +69,84 @@ public enum EightSleepPayloadDecoder {
       deepSleepSeconds: object.firstNumber(at: [["deepDuration"]]),
       remSleepSeconds: object.firstNumber(at: [["remDuration"]]),
       availableFields: object.keys.sorted(),
-      timeSeries: decodeTimeSeries(sessionObjects)
+      metricFields: metricFields,
+      timeSeries: decodeTimeSeries(sessionObjects),
+      latestSessionID: sessionID,
+      intervalProbe: nil
     )
+  }
+
+  private static func isRestingHeartRateField(_ field: EightSleepMetricField) -> Bool {
+    let normalized = field.path.lowercased().filter(\.isLetter)
+    return normalized.contains("restingheartrate") || normalized.hasSuffix("rhr")
+  }
+
+  private static func decodeMetricFields(
+    _ object: [String: JSONValue]
+  ) -> [EightSleepMetricField] {
+    var valuesByPath: [String: Double] = [:]
+    collectMetricFields(in: .object(object), path: [], valuesByPath: &valuesByPath)
+
+    return valuesByPath.keys.sorted().compactMap { path in
+      valuesByPath[path].map { EightSleepMetricField(path: path, value: $0) }
+    }
+  }
+
+  private static func collectMetricFields(
+    in value: JSONValue,
+    path: [String],
+    valuesByPath: inout [String: Double]
+  ) {
+    switch value {
+    case .object(let object):
+      for key in object.keys.sorted() {
+        guard key.caseInsensitiveCompare("timeseries") != .orderedSame else { continue }
+        guard let child = object[key] else { continue }
+        collectMetricFields(
+          in: child,
+          path: path + [sanitizedFieldKey(key)],
+          valuesByPath: &valuesByPath
+        )
+      }
+    case .array(let array):
+      let arrayPath: [String]
+      if let last = path.last {
+        arrayPath = Array(path.dropLast()) + [last + "[]"]
+      } else {
+        arrayPath = ["[]"]
+      }
+      for child in array {
+        collectMetricFields(in: child, path: arrayPath, valuesByPath: &valuesByPath)
+      }
+    case .number(let number):
+      let joinedPath = path.joined(separator: ".")
+      let normalizedPath = joinedPath.lowercased()
+      let metricTokens = ["heart", "hrv", "respir", "breath", "pulse", "rhr", "resting"]
+      if metricTokens.contains(where: normalizedPath.contains),
+        !isIdentifierPath(path),
+        number.isFinite
+      {
+        valuesByPath[joinedPath] = number
+      }
+    case .string(let string):
+      guard let number = Double(string), number.isFinite else { return }
+      let joinedPath = path.joined(separator: ".")
+      let normalizedPath = joinedPath.lowercased()
+      let metricTokens = ["heart", "hrv", "respir", "breath", "pulse", "rhr", "resting"]
+      if metricTokens.contains(where: normalizedPath.contains), !isIdentifierPath(path) {
+        valuesByPath[joinedPath] = number
+      }
+    case .bool, .null:
+      break
+    }
+  }
+
+  private static func isIdentifierPath(_ path: [String]) -> Bool {
+    guard let leaf = path.last else { return false }
+    let normalized = leaf.lowercased().filter(\.isLetter)
+    return normalized.hasSuffix("id")
+      || normalized.hasSuffix("identifier")
+      || normalized.hasSuffix("uuid")
   }
 
   private static func decodeTimeSeries(
@@ -81,6 +162,14 @@ public enum EightSleepPayloadDecoder {
         guard let samples = series[name]?.arrayValue else { return nil }
         let timestamps = samples.compactMap(sampleTimestamp)
         let latestValue = samples.reversed().lazy.compactMap(sampleNumber).first
+        let numericSamples = samples.compactMap { sample -> EightSleepTimeSeriesSample? in
+          guard
+            let timestamp = sampleTimestamp(sample),
+            let value = sampleNumber(sample),
+            value.isFinite
+          else { return nil }
+          return EightSleepTimeSeriesSample(timestamp: timestamp, value: value)
+        }
 
         return EightSleepTimeSeries(
           id: "\(sessionID)-\(name)",
@@ -89,7 +178,8 @@ public enum EightSleepPayloadDecoder {
           sampleCount: samples.count,
           firstTimestamp: timestamps.first,
           lastTimestamp: timestamps.last,
-          latestNumericValue: latestValue
+          latestNumericValue: latestValue,
+          numericSamples: numericSamples
         )
       }
     }

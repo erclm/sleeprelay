@@ -95,4 +95,55 @@ struct EightSleepHTTPClientTests {
     }
     #expect(await transport.requests.isEmpty)
   }
+
+  @Test
+  func probesVerifiedReadOnlyIntervalsPathAndKeepsOnlySanitizedSummary() async throws {
+    let authURL = URL(string: "https://auth.example.test/v1/tokens")!
+    let baseURL = URL(string: "https://client.example.test/v1/")!
+    func response(_ url: URL) -> HTTPURLResponse {
+      HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    }
+    let transport = StubTransport(responses: [
+      (
+        Data(#"{"access_token":"short-lived","expires_in":3600,"userId":"user-1"}"#.utf8),
+        response(authURL)
+      ),
+      (
+        Data(
+          #"{"days":[{"day":"2026-08-28","sessions":[{"id":"session-secret","timeseries":{}}]}]}"#.utf8
+        ),
+        response(baseURL)
+      ),
+      (
+        Data(
+          #"{"summary":{"rhr":55},"heartRate":[["2026-08-28T06:00:00Z",58],["2026-08-28T06:05:00Z",56]]}"#.utf8
+        ),
+        response(baseURL)
+      ),
+    ])
+    let client = EightSleepHTTPClient(
+      configuration: EightSleepAPIConfiguration(
+        clientID: "client",
+        clientSecret: "client-secret",
+        authURL: authURL,
+        clientAPIBaseURL: baseURL
+      ),
+      transport: transport
+    )
+
+    let snapshot = try await client.connect(
+      credentials: EightSleepCredentials(email: "person@example.test", password: "password"),
+      request: EightSleepFetchRequest(from: "2026-08-28", to: "2026-08-28", timeZoneIdentifier: "UTC")
+    )
+
+    let night = try #require(snapshot.nights.first)
+    #expect(night.discoveredRestingHeartRateBPM == 55)
+    #expect(night.intervalProbe?.series.first?.sampleCount == 2)
+    #expect(night.intervalProbe?.fieldPaths.contains("heartRate[]") == true)
+    let requests = await transport.requests
+    #expect(requests.count == 3)
+    #expect(requests[2].httpMethod == "GET")
+    #expect(requests[2].url?.path == "/v1/users/user-1/intervals/session-secret")
+    #expect(requests[2].url?.query == nil)
+  }
 }

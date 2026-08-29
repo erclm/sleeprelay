@@ -39,6 +39,11 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
           "day", "presenceEnd", "presenceStart", "processing", "score",
           "sessions", "sleepDuration", "sleepQualityScore",
         ],
+        metricFields: [
+          EightSleepMetricField(path: "sleepQualityScore.heartRate.average", value: 57),
+          EightSleepMetricField(path: "sleepQualityScore.hrv.current", value: 48),
+          EightSleepMetricField(path: "sleepQualityScore.respiratoryRate.average", value: 14.2),
+        ],
         timeSeries: [
           EightSleepTimeSeries(
             id: "fixture-heartRate",
@@ -47,7 +52,17 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
             sampleCount: 92,
             firstTimestamp: Date(timeIntervalSince1970: 1_788_038_400),
             lastTimestamp: Date(timeIntervalSince1970: 1_788_066_000),
-            latestNumericValue: 55
+            latestNumericValue: 55,
+            numericSamples: [
+              EightSleepTimeSeriesSample(
+                timestamp: Date(timeIntervalSince1970: 1_788_038_400), value: 58),
+              EightSleepTimeSeriesSample(
+                timestamp: Date(timeIntervalSince1970: 1_788_038_700), value: 56),
+              EightSleepTimeSeriesSample(
+                timestamp: Date(timeIntervalSince1970: 1_788_039_000), value: 55),
+              EightSleepTimeSeriesSample(
+                timestamp: Date(timeIntervalSince1970: 1_788_039_300), value: 57),
+            ]
           ),
           EightSleepTimeSeries(
             id: "fixture-hrv",
@@ -56,9 +71,27 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
             sampleCount: 31,
             firstTimestamp: Date(timeIntervalSince1970: 1_788_038_400),
             lastTimestamp: Date(timeIntervalSince1970: 1_788_066_000),
-            latestNumericValue: 51
+            latestNumericValue: 51,
+            numericSamples: []
           ),
-        ]
+        ],
+        latestSessionID: "fixture-session",
+        intervalProbe: EightSleepIntervalProbe(
+          status: .available,
+          fieldPaths: ["intervals[].heartRate", "summary.hrv"],
+          metricFields: [
+            EightSleepMetricField(path: "summary.heartRate.average", value: 57)
+          ],
+          series: [
+            EightSleepSeriesSummary(
+              path: "intervals[].heartRate",
+              sampleCount: 4,
+              minimum: 55,
+              median: 56.5,
+              maximum: 58
+            )
+          ]
+        )
       )
     ]
   )
