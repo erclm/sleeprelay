@@ -109,8 +109,8 @@ permission is requested only from the separate RHR confirmation flow.
 The App Store Connect record and private `Sleep Relay Internal` group were
 created on 2026-08-29. Version 0.1.0 build 1 was uploaded, passed processing,
 and was assigned to the account holder through automatic internal
-distribution. Build 3 source adds the guarded RHR import and is prepared locally
-but has not yet been archived or uploaded.
+distribution. Build 4 fixes Health authorization presentation so the RHR
+review sheet fully dismisses before Apple's prompt appears.
 
 On the iPhone, install Apple's TestFlight app, accept the Sleep Relay invitation
 for the same Apple Account, and install the available build. The installed

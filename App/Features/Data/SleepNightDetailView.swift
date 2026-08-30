@@ -5,6 +5,8 @@ struct SleepNightDetailView: View {
   let night: EightSleepNight
   let healthModel: HealthCoverageModel
   @State private var officialEightRHR = ""
+  @State private var healthSheet: RestingHeartRateSheetDestination?
+  @State private var pendingHealthAction: PendingRestingHeartRateAction?
 
   private var analysis: RestingHeartRateLabAnalysis {
     RestingHeartRateLab.analyze(night)
@@ -43,7 +45,11 @@ struct SleepNightDetailView: View {
         optionalMetric("Tosses and turns", value: night.tossAndTurns, suffix: "")
       }
 
-      RestingHeartRateSyncSection(night: night, model: healthModel)
+      RestingHeartRateSyncSection(
+        night: night,
+        model: healthModel,
+        presentReview: { healthSheet = $0 }
+      )
 
       Section("RHR Lab") {
         LabeledContent("Official Eight app RHR") {
@@ -172,6 +178,43 @@ struct SleepNightDetailView: View {
     }
     .navigationTitle(night.day)
     .navigationBarTitleDisplayMode(.inline)
+    .sheet(item: $healthSheet, onDismiss: performPendingHealthAction) { destination in
+      switch destination {
+      case .write(let candidate, let decision):
+        RestingHeartRateWriteReview(
+          candidate: candidate,
+          decision: decision
+        ) {
+          pendingHealthAction = .write(allowAdditionalSource: decision.hasOtherSources)
+          healthSheet = nil
+        }
+      case .delete(let candidate):
+        RestingHeartRateDeleteReview(candidate: candidate) {
+          pendingHealthAction = .delete
+          healthSheet = nil
+        }
+      }
+    }
+  }
+
+  private func performPendingHealthAction() {
+    guard let action = pendingHealthAction else { return }
+    pendingHealthAction = nil
+
+    // HealthKit presents its own authorization UI. Start it only after SwiftUI has
+    // completed dismissing our review sheet so the two modal transitions never overlap.
+    Task { @MainActor in
+      await Task.yield()
+      switch action {
+      case .write(let allowAdditionalSource):
+        await healthModel.writeRestingHeartRate(
+          for: night,
+          allowAdditionalSource: allowAdditionalSource
+        )
+      case .delete:
+        await healthModel.deleteRestingHeartRate(for: night)
+      }
+    }
   }
 
   @ViewBuilder
@@ -200,6 +243,11 @@ struct SleepNightDetailView: View {
   private func format(_ value: Double) -> String {
     value.formatted(.number.precision(.fractionLength(0...2)))
   }
+}
+
+private enum PendingRestingHeartRateAction {
+  case write(allowAdditionalSource: Bool)
+  case delete
 }
 
 private struct MetricRow: View {

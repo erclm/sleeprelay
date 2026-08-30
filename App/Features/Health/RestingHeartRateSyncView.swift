@@ -4,8 +4,7 @@ import SwiftUI
 struct RestingHeartRateSyncSection: View {
   let night: EightSleepNight
   @Bindable var model: HealthCoverageModel
-
-  @State private var sheet: SheetDestination?
+  let presentReview: (RestingHeartRateSheetDestination) -> Void
 
   var body: some View {
     Section {
@@ -27,7 +26,7 @@ struct RestingHeartRateSyncSection: View {
           Label("No overlapping RHR sample is visible", systemImage: "checkmark.circle")
             .foregroundStyle(.green)
           Button("Review RHR import") {
-            sheet = .write(candidate: candidate, decision: decision)
+            presentReview(.write(candidate: candidate, decision: decision))
           }
           .buttonStyle(.borderedProminent)
 
@@ -38,7 +37,7 @@ struct RestingHeartRateSyncSection: View {
           )
           .foregroundStyle(.orange)
           Button("Review additional RHR source") {
-            sheet = .write(candidate: candidate, decision: decision)
+            presentReview(.write(candidate: candidate, decision: decision))
           }
 
         case .eightAlreadyPresent:
@@ -52,7 +51,7 @@ struct RestingHeartRateSyncSection: View {
           Label("Synced by Sleep Relay", systemImage: "checkmark.circle.fill")
             .foregroundStyle(.green)
           Button("Remove Sleep Relay sample", role: .destructive) {
-            sheet = .delete(candidate: candidate)
+            presentReview(.delete(candidate: candidate))
           }
         }
 
@@ -89,24 +88,6 @@ struct RestingHeartRateSyncSection: View {
     .task(id: night.id) {
       await model.loadRestingHeartRateStatus(for: night)
     }
-    .sheet(item: $sheet) { destination in
-      switch destination {
-      case .write(let candidate, let decision):
-        RestingHeartRateWriteReview(
-          candidate: candidate,
-          decision: decision
-        ) {
-          await model.writeRestingHeartRate(
-            for: night,
-            allowAdditionalSource: decision.hasOtherSources
-          )
-        }
-      case .delete(let candidate):
-        RestingHeartRateDeleteReview(candidate: candidate) {
-          await model.deleteRestingHeartRate(for: night)
-        }
-      }
-    }
   }
 
   private func progressRow(_ title: String) -> some View {
@@ -121,7 +102,7 @@ struct RestingHeartRateSyncSection: View {
   }
 }
 
-private enum SheetDestination: Identifiable {
+enum RestingHeartRateSheetDestination: Identifiable {
   case write(
     candidate: RestingHeartRateSyncCandidate,
     decision: RestingHeartRateSyncDecision
@@ -136,13 +117,12 @@ private enum SheetDestination: Identifiable {
   }
 }
 
-private struct RestingHeartRateWriteReview: View {
+struct RestingHeartRateWriteReview: View {
   let candidate: RestingHeartRateSyncCandidate
   let decision: RestingHeartRateSyncDecision
-  let onConfirm: () async -> Void
+  let onConfirm: () -> Void
 
   @Environment(\.dismiss) private var dismiss
-  @State private var isWorking = false
 
   var body: some View {
     NavigationStack {
@@ -185,31 +165,23 @@ private struct RestingHeartRateWriteReview: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { dismiss() }
-            .disabled(isWorking)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(decision.hasOtherSources ? "Add Anyway" : "Add to Health") {
-            isWorking = true
-            Task {
-              await onConfirm()
-              dismiss()
-            }
+            onConfirm()
           }
-          .disabled(isWorking)
         }
       }
-      .interactiveDismissDisabled(isWorking)
     }
     .presentationDetents([.medium, .large])
   }
 }
 
-private struct RestingHeartRateDeleteReview: View {
+struct RestingHeartRateDeleteReview: View {
   let candidate: RestingHeartRateSyncCandidate
-  let onConfirm: () async -> Void
+  let onConfirm: () -> Void
 
   @Environment(\.dismiss) private var dismiss
-  @State private var isWorking = false
 
   var body: some View {
     NavigationStack {
@@ -228,26 +200,19 @@ private struct RestingHeartRateDeleteReview: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { dismiss() }
-            .disabled(isWorking)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button("Remove", role: .destructive) {
-            isWorking = true
-            Task {
-              await onConfirm()
-              dismiss()
-            }
+            onConfirm()
           }
-          .disabled(isWorking)
         }
       }
-      .interactiveDismissDisabled(isWorking)
     }
     .presentationDetents([.medium])
   }
 }
 
-private extension RestingHeartRateSyncDecision {
+extension RestingHeartRateSyncDecision {
   var hasOtherSources: Bool {
     if case .otherSourcesPresent = self { return true }
     return false
