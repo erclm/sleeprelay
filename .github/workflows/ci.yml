@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -35,4 +35,4 @@ jobs:
         run: Scripts/ci.sh
 
       - name: Verify generated project is committed
-        run: git diff --exit-code -- SleepRelay.xcodeproj App/Info.plist
+        run: git diff --exit-code -- SleepRelay.xcodeproj/project.pbxproj App/Info.plist
