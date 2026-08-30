@@ -41,7 +41,7 @@
                 VStack(alignment: .leading, spacing: 4) {
                   Text(night.day)
                     .font(.headline)
-                  Text("Copy-safe payload shapes, RHR lab, probes, and series summaries")
+                  Text("Copy-safe payload shapes, relationship audit, RHR lab, and probes")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
@@ -52,7 +52,7 @@
 
         Section {
           Label(
-            "Payload structure reports are sanitized. All Developer diagnostics are read-only.",
+            "Payload structure and relationship reports are sanitized. All Developer diagnostics are read-only.",
             systemImage: "hand.raised"
           )
           .font(.footnote)
@@ -93,6 +93,8 @@
     @State private var officialEightRHR = ""
     @State private var copiedStructureReport: String?
     @State private var structureCopyCount = 0
+    @State private var copiedRelationshipReport: String?
+    @State private var relationshipCopyCount = 0
 
     private var night: EightSleepNight {
       model.nights.first(where: { $0.id == initialNight.id })
@@ -119,6 +121,18 @@
       EightSleepDiagnosticReport.sanitizedStructureReport(for: night)
     }
 
+    private var relationshipReport: String {
+      EightSleepSeriesRelationshipReport.sanitizedReport(for: night)
+    }
+
+    private var seriesRelationships: [EightSleepSeriesRelationship] {
+      night.intervalProbe?.seriesRelationships ?? []
+    }
+
+    private var nightlyHRVConsistency: [EightSleepNightlyHRVConsistency] {
+      night.intervalProbe?.nightlyHRVConsistency ?? []
+    }
+
     private var intervalStructureStatus: String {
       if let probe = night.intervalProbe {
         switch probe.status {
@@ -135,6 +149,22 @@
 
     private var trendsStructureStatus: String {
       night.trendsPathSummaries.isEmpty ? "Not captured in this refresh" : "Available"
+    }
+
+    private var relationshipAuditStatus: String {
+      if let probe = night.intervalProbe {
+        switch probe.status {
+        case .available:
+          return probe.seriesRelationships.isEmpty
+            ? "Not captured in this refresh"
+            : "Available"
+        case .unavailable:
+          return probe.status.label
+        }
+      }
+      return night.latestSessionID == nil
+        ? "Not requested: no session reference"
+        : "Not included in this refresh"
     }
 
     var body: some View {
@@ -172,6 +202,90 @@
           )
           .font(.footnote)
           .foregroundStyle(.secondary)
+        }
+
+        Section("Series relationship audit") {
+          LabeledContent("Status", value: relationshipAuditStatus)
+
+          if seriesRelationships.isEmpty {
+            Text(
+              "No relationship summary was retained. Pull to refresh here; background refresh intentionally skips this audit."
+            )
+            .foregroundStyle(.secondary)
+          } else {
+            Button {
+              UIPasteboard.general.string = relationshipReport
+              copiedRelationshipReport = relationshipReport
+              relationshipCopyCount += 1
+              AccessibilityNotification.Announcement("Sanitized relationship audit copied").post()
+            } label: {
+              Label(
+                copiedRelationshipReport == relationshipReport
+                  ? "Relationship audit copied"
+                  : "Copy relationship audit",
+                systemImage: copiedRelationshipReport == relationshipReport
+                  ? "checkmark"
+                  : "doc.on.doc"
+              )
+            }
+            .accessibilityIdentifier("developer.seriesRelationship.copy")
+            .accessibilityHint(
+              "Copies fixed comparison labels, counts, and categorical relationships without timestamps or measurements."
+            )
+            .sensoryFeedback(.success, trigger: relationshipCopyCount)
+
+            ShareLink(
+              item: relationshipReport,
+              subject: Text("Sleep Relay sanitized series relationship audit"),
+              message: Text("Value-free Eight Sleep series comparison")
+            ) {
+              Label("Share relationship audit", systemImage: "square.and.arrow.up")
+            }
+
+            ForEach(seriesRelationships) { relationship in
+              VStack(alignment: .leading, spacing: 5) {
+                Text(relationship.comparison.label)
+                  .font(.headline)
+                Text(EightSleepSeriesRelationshipReport.summaryDescription(relationship))
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
+              }
+              .padding(.vertical, 2)
+              .accessibilityElement(children: .ignore)
+              .accessibilityLabel(relationship.comparison.label)
+              .accessibilityValue(
+                EightSleepSeriesRelationshipReport.summaryDescription(relationship)
+              )
+            }
+
+            LabeledContent(
+              "HRV algorithm versions",
+              value: night.intervalProbe?.algorithmVersionRelationship.label ?? "not captured"
+            )
+
+            if !nightlyHRVConsistency.isEmpty {
+              DisclosureGroup("Nightly HRV consistency checks") {
+                ForEach(nightlyHRVConsistency) { consistency in
+                  VStack(alignment: .leading, spacing: 5) {
+                    Text(consistency.series.label)
+                      .font(.headline)
+                    Text(
+                      EightSleepSeriesRelationshipReport.nightlySummaryDescription(consistency)
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                  }
+                  .padding(.vertical, 2)
+                }
+              }
+            }
+
+            Text(
+              "Left and right follow each title's order. Simple aggregate matches are only consistent on this one night; they do not identify Eight's formula. The fixed-schema report retains no raw timestamps or measurements. Counts can approximate recording coverage. Trends and intervals are sequential requests, so differences can also reflect reprocessing."
+            )
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          }
         }
 
         PayloadStructureSection(
@@ -317,6 +431,9 @@
       }
       .onChange(of: structureReport) { _, _ in
         copiedStructureReport = nil
+      }
+      .onChange(of: relationshipReport) { _, _ in
+        copiedRelationshipReport = nil
       }
     }
 

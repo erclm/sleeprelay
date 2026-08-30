@@ -47,7 +47,9 @@ private struct Walker {
 
     case .array(let array):
       recordArray(count: array.count, at: path)
-      recordCadence(cadenceObservations(in: array), at: path)
+      if !isIdentifierValuePath(path) {
+        recordCadence(cadenceObservations(in: array), at: path)
+      }
       let itemPath = path + "[]"
       for child in array {
         inspect(child, path: itemPath)
@@ -55,7 +57,9 @@ private struct Walker {
 
     case .string(let string):
       let kind: EightSleepProbeValueKind
-      if timestampParser.parse(string) != nil {
+      if isIdentifierValuePath(path) {
+        kind = .text
+      } else if timestampParser.parse(string) != nil {
         kind = .timestampString
       } else if string.count <= 64, Double(string)?.isFinite == true {
         kind = .numericString
@@ -77,6 +81,23 @@ private struct Walker {
 
   private func childPath(parent: String, key: String) -> String {
     parent == "$" ? key : parent + "." + key
+  }
+
+  private func isIdentifierValuePath(_ path: String) -> Bool {
+    guard let leaf = path.split(separator: ".").last else { return false }
+    let rawLeaf = String(leaf).replacingOccurrences(of: "[]", with: "")
+    let identifierTokens = Set(["id", "ids", "identifier", "identifiers", "uuid", "uuids"])
+    if identifierTokens.contains(rawLeaf.lowercased()) { return true }
+
+    let separatedTail = rawLeaf.split(whereSeparator: { character in
+      character == "_" || character == "-"
+    }).last?.lowercased()
+    if let separatedTail, identifierTokens.contains(separatedTail) { return true }
+
+    return [
+      "Id", "ID", "Ids", "IDs", "Identifier", "Identifiers", "Uuid", "UUID", "Uuids",
+      "UUIDs",
+    ].contains { rawLeaf.hasSuffix($0) }
   }
 
   private mutating func sanitizedKey(_ key: String) -> String {
@@ -234,11 +255,18 @@ private struct PathAccumulator {
 
   private var typicalCadenceBucket: EightSleepProbeCadenceBucket? {
     guard cadenceGapCount > 0 else { return nil }
-    let midpoint = (cadenceGapCount - 1) / 2
+    let lowerMidpoint = (cadenceGapCount - 1) / 2
+    let upperMidpoint = cadenceGapCount / 2
+    let lowerBucket = bucket(atSortedIndex: lowerMidpoint)
+    let upperBucket = bucket(atSortedIndex: upperMidpoint)
+    return lowerBucket == upperBucket ? lowerBucket : nil
+  }
+
+  private func bucket(atSortedIndex index: Int) -> EightSleepProbeCadenceBucket? {
     var cumulative = 0
     for bucket in EightSleepProbeCadenceBucket.allCases {
       cumulative += cadenceBuckets[bucket, default: 0]
-      if cumulative > midpoint { return bucket }
+      if cumulative > index { return bucket }
     }
     return nil
   }
