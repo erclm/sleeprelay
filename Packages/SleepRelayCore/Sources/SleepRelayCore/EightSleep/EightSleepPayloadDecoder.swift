@@ -3,7 +3,11 @@ import Foundation
 public enum EightSleepPayloadDecoder {
   private static let maximumSleepDurationSeconds: Double = 48 * 60 * 60
 
-  public static func decodeTrends(_ data: Data) throws -> [EightSleepNight] {
+  public static func decodeTrends(
+    _ data: Data,
+    redacting identifiers: Set<String> = [],
+    includePayloadShapeDiagnostics: Bool = false
+  ) throws -> [EightSleepNight] {
     let root = try JSONDecoder().decode(JSONValue.self, from: data)
     guard
       let object = root.objectValue,
@@ -14,13 +18,20 @@ public enum EightSleepPayloadDecoder {
 
     return days.enumerated().compactMap { index, value in
       guard let day = value.objectValue else { return nil }
-      return decodeNight(day, fallbackIndex: index)
+      return decodeNight(
+        day,
+        fallbackIndex: index,
+        redacting: identifiers,
+        includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
+      )
     }
   }
 
   private static func decodeNight(
     _ object: [String: JSONValue],
-    fallbackIndex: Int
+    fallbackIndex: Int,
+    redacting identifiers: Set<String>,
+    includePayloadShapeDiagnostics: Bool
   ) -> EightSleepNight {
     let day = object.firstString(at: [["day"]]) ?? "Unknown night"
     let sessions = object["sessions"]?.arrayValue ?? []
@@ -32,6 +43,7 @@ public enum EightSleepPayloadDecoder {
       object.firstString(at: [["id"], ["sessionId"]])
       ?? sessionID
       ?? "\(day)-\(fallbackIndex)"
+    let shapeRedactions = identifiers.union([identifier, sessionID, day].compactMap { $0 })
     let metricFields = decodeMetricFields(object)
     let explicitRestingHeartRate =
       object.firstNumber(at: [
@@ -78,7 +90,13 @@ public enum EightSleepPayloadDecoder {
       metricFields: metricFields,
       timeSeries: decodeTimeSeries(sessionObjects),
       latestSessionID: sessionID,
-      intervalProbe: nil
+      intervalProbe: nil,
+      trendsPathSummaries: includePayloadShapeDiagnostics
+        ? EightSleepPayloadShapeAnalyzer.summarize(
+          .object(object),
+          redacting: shapeRedactions
+        )
+        : []
     )
   }
 

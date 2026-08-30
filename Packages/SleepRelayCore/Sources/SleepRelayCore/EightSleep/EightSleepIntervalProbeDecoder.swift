@@ -1,7 +1,11 @@
 import Foundation
 
 enum EightSleepIntervalProbeDecoder {
-  static func decode(_ data: Data) throws -> EightSleepIntervalProbe {
+  static func decode(
+    _ data: Data,
+    redacting identifiers: Set<String> = [],
+    includePayloadShapeDiagnostics: Bool = false
+  ) throws -> EightSleepIntervalProbe {
     let root = try JSONDecoder().decode(JSONValue.self, from: data)
     var fieldPaths = Set<String>()
     var metricValues: [String: Double] = [:]
@@ -13,7 +17,8 @@ enum EightSleepIntervalProbeDecoder {
       insideArray: false,
       fieldPaths: &fieldPaths,
       metricValues: &metricValues,
-      seriesByPath: &seriesByPath
+      seriesByPath: &seriesByPath,
+      redacting: identifiers
     )
 
     return EightSleepIntervalProbe(
@@ -22,7 +27,13 @@ enum EightSleepIntervalProbeDecoder {
       metricFields: metricValues.keys.sorted().compactMap { path in
         metricValues[path].map { EightSleepMetricField(path: path, value: $0) }
       },
-      series: seriesByPath.keys.sorted().compactMap { seriesByPath[$0] }
+      series: seriesByPath.keys.sorted().compactMap { seriesByPath[$0] },
+      pathSummaries: includePayloadShapeDiagnostics
+        ? EightSleepPayloadShapeAnalyzer.summarize(
+          root,
+          redacting: identifiers
+        )
+        : []
     )
   }
 
@@ -32,7 +43,8 @@ enum EightSleepIntervalProbeDecoder {
     insideArray: Bool,
     fieldPaths: inout Set<String>,
     metricValues: inout [String: Double],
-    seriesByPath: inout [String: EightSleepSeriesSummary]
+    seriesByPath: inout [String: EightSleepSeriesSummary],
+    redacting identifiers: Set<String>
   ) {
     switch value {
     case .object(let object):
@@ -43,11 +55,12 @@ enum EightSleepIntervalProbeDecoder {
         guard let child = object[key] else { continue }
         inspect(
           child,
-          path: path + [sanitizedFieldKey(key)],
+          path: path + [sanitizedFieldKey(key, redacting: identifiers)],
           insideArray: insideArray,
           fieldPaths: &fieldPaths,
           metricValues: &metricValues,
-          seriesByPath: &seriesByPath
+          seriesByPath: &seriesByPath,
+          redacting: identifiers
         )
       }
     case .array(let array):
@@ -77,7 +90,8 @@ enum EightSleepIntervalProbeDecoder {
           insideArray: true,
           fieldPaths: &fieldPaths,
           metricValues: &metricValues,
-          seriesByPath: &seriesByPath
+          seriesByPath: &seriesByPath,
+          redacting: identifiers
         )
       }
     case .number(let number):

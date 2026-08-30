@@ -15,17 +15,20 @@ public struct EightSleepFetchRequest: Equatable, Sendable {
   public let to: String
   public let timeZoneIdentifier: String
   public let includeIntervalProbes: Bool
+  public let includePayloadShapeDiagnostics: Bool
 
   public init(
     from: String,
     to: String,
     timeZoneIdentifier: String,
-    includeIntervalProbes: Bool = true
+    includeIntervalProbes: Bool = true,
+    includePayloadShapeDiagnostics: Bool = false
   ) {
     self.from = from
     self.to = to
     self.timeZoneIdentifier = timeZoneIdentifier
     self.includeIntervalProbes = includeIntervalProbes
+    self.includePayloadShapeDiagnostics = includePayloadShapeDiagnostics
   }
 }
 
@@ -60,6 +63,7 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
   public let timeSeries: [EightSleepTimeSeries]
   public let latestSessionID: String?
   public internal(set) var intervalProbe: EightSleepIntervalProbe?
+  public let trendsPathSummaries: [EightSleepProbePathSummary]
 
   public var discoveredRestingHeartRateBPM: Double? {
     explicitRestingHeartRateBPM
@@ -89,7 +93,8 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
     metricFields: [EightSleepMetricField],
     timeSeries: [EightSleepTimeSeries],
     latestSessionID: String?,
-    intervalProbe: EightSleepIntervalProbe?
+    intervalProbe: EightSleepIntervalProbe?,
+    trendsPathSummaries: [EightSleepProbePathSummary] = []
   ) {
     self.id = id
     self.day = day
@@ -111,6 +116,7 @@ public struct EightSleepNight: Identifiable, Hashable, Sendable {
     self.timeSeries = timeSeries
     self.latestSessionID = latestSessionID
     self.intervalProbe = intervalProbe
+    self.trendsPathSummaries = trendsPathSummaries
   }
 }
 
@@ -203,22 +209,126 @@ public struct EightSleepSeriesSummary: Identifiable, Hashable, Sendable {
   }
 }
 
+public enum EightSleepProbeValueKind: String, CaseIterable, Hashable, Sendable {
+  case array
+  case boolean
+  case null
+  case number
+  case numericString
+  case object
+  case text
+  case timestampString
+
+  public var label: String {
+    switch self {
+    case .array: "array"
+    case .boolean: "boolean"
+    case .null: "null"
+    case .number: "number"
+    case .numericString: "numeric string"
+    case .object: "object"
+    case .text: "text"
+    case .timestampString: "timestamp string"
+    }
+  }
+}
+
+public struct EightSleepProbeKindCount: Hashable, Sendable {
+  public let kind: EightSleepProbeValueKind
+  public let count: Int
+
+  public init(kind: EightSleepProbeValueKind, count: Int) {
+    self.kind = kind
+    self.count = count
+  }
+}
+
+public enum EightSleepProbeCadenceBucket: String, CaseIterable, Hashable, Sendable {
+  case underTenMilliseconds
+  case tenToHundredMilliseconds
+  case hundredMillisecondsToOneSecond
+  case oneToTenSeconds
+  case tenSecondsToOneMinute
+  case oneToTenMinutes
+  case tenMinutesToOneHour
+  case overOneHour
+
+  public var label: String {
+    switch self {
+    case .underTenMilliseconds: "under 10 ms"
+    case .tenToHundredMilliseconds: "10-100 ms"
+    case .hundredMillisecondsToOneSecond: "100 ms-1 sec"
+    case .oneToTenSeconds: "1-10 sec"
+    case .tenSecondsToOneMinute: "10-60 sec"
+    case .oneToTenMinutes: "1-10 min"
+    case .tenMinutesToOneHour: "10-60 min"
+    case .overOneHour: "over 1 hour"
+    }
+  }
+}
+
+/// A value-free description of one JSON path in an Eight Sleep response.
+///
+/// It intentionally retains only schema names, JSON kinds, counts, and a broad
+/// relative-cadence bucket. It never retains payload values or absolute timestamps.
+public struct EightSleepProbePathSummary: Identifiable, Hashable, Sendable {
+  public var id: String { path }
+
+  public let path: String
+  public let kindCounts: [EightSleepProbeKindCount]
+  public let arrayInstanceCount: Int
+  public let totalArrayElementCount: Int
+  public let minimumArrayElementCount: Int?
+  public let maximumArrayElementCount: Int?
+  public let timestampObservationCount: Int
+  public let cadenceGapCount: Int
+  public let typicalCadenceBucket: EightSleepProbeCadenceBucket?
+  public let cadenceSampleWasCapped: Bool
+
+  public init(
+    path: String,
+    kindCounts: [EightSleepProbeKindCount],
+    arrayInstanceCount: Int = 0,
+    totalArrayElementCount: Int = 0,
+    minimumArrayElementCount: Int? = nil,
+    maximumArrayElementCount: Int? = nil,
+    timestampObservationCount: Int = 0,
+    cadenceGapCount: Int = 0,
+    typicalCadenceBucket: EightSleepProbeCadenceBucket? = nil,
+    cadenceSampleWasCapped: Bool = false
+  ) {
+    self.path = path
+    self.kindCounts = kindCounts
+    self.arrayInstanceCount = arrayInstanceCount
+    self.totalArrayElementCount = totalArrayElementCount
+    self.minimumArrayElementCount = minimumArrayElementCount
+    self.maximumArrayElementCount = maximumArrayElementCount
+    self.timestampObservationCount = timestampObservationCount
+    self.cadenceGapCount = cadenceGapCount
+    self.typicalCadenceBucket = typicalCadenceBucket
+    self.cadenceSampleWasCapped = cadenceSampleWasCapped
+  }
+}
+
 public struct EightSleepIntervalProbe: Hashable, Sendable {
   public let status: EightSleepIntervalProbeStatus
   public let fieldPaths: [String]
   public let metricFields: [EightSleepMetricField]
   public let series: [EightSleepSeriesSummary]
+  public let pathSummaries: [EightSleepProbePathSummary]
 
   public init(
     status: EightSleepIntervalProbeStatus,
     fieldPaths: [String],
     metricFields: [EightSleepMetricField],
-    series: [EightSleepSeriesSummary]
+    series: [EightSleepSeriesSummary],
+    pathSummaries: [EightSleepProbePathSummary] = []
   ) {
     self.status = status
     self.fieldPaths = fieldPaths
     self.metricFields = metricFields
     self.series = series
+    self.pathSummaries = pathSummaries
   }
 
   public static func unavailable(_ reason: String) -> EightSleepIntervalProbe {
@@ -226,7 +336,8 @@ public struct EightSleepIntervalProbe: Hashable, Sendable {
       status: .unavailable(reason: reason),
       fieldPaths: [],
       metricFields: [],
-      series: []
+      series: [],
+      pathSummaries: []
     )
   }
 }

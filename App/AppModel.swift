@@ -7,6 +7,9 @@ enum AppTab: Hashable {
   case data
   case health
   case about
+  #if INTERNAL_TOOLS
+    case developer
+  #endif
 }
 
 enum ConnectionState: Equatable {
@@ -73,6 +76,13 @@ final class AppModel {
 
   private static let lastAutomaticRefreshKey = "app.sleeprelay.lastAutomaticRefreshSleepDay"
   private static let historyStartYear = 2015
+  private static let internalPayloadShapeDiagnosticsEnabled: Bool = {
+    #if INTERNAL_TOOLS
+      true
+    #else
+      false
+    #endif
+  }()
 
   init(
     provider: any EightSleepProviding,
@@ -231,11 +241,13 @@ final class AppModel {
     do {
       let snapshot: EightSleepSnapshot
       if wasConnected {
-        snapshot = try await refreshOrReconnect(request: recentNightsRequest(now: now))
+        snapshot = try await refreshOrReconnect(
+          request: recentNightsRequest(now: now, includePayloadShapeDiagnostics: false)
+        )
       } else {
         snapshot = try await provider.connect(
           credentials: activeCredentials,
-          request: recentNightsRequest(now: now)
+          request: recentNightsRequest(now: now, includePayloadShapeDiagnostics: false)
         )
       }
       apply(snapshot)
@@ -372,10 +384,19 @@ final class AppModel {
     )
   }
 
-  private func recentNightsRequest(now: Date = .now) -> EightSleepFetchRequest {
+  private func recentNightsRequest(
+    now: Date = .now,
+    includePayloadShapeDiagnostics: Bool? = nil
+  ) -> EightSleepFetchRequest {
     let calendar = localCalendar
     let fromDate = calendar.date(byAdding: .day, value: -7, to: now) ?? now
-    return fetchRequest(from: fromDate, to: now, includeIntervalProbes: true)
+    return fetchRequest(
+      from: fromDate,
+      to: now,
+      includeIntervalProbes: true,
+      includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
+        ?? Self.internalPayloadShapeDiagnosticsEnabled
+    )
   }
 
   private func historyRequests(now: Date) -> [EightSleepFetchRequest] {
@@ -392,7 +413,8 @@ final class AppModel {
       return fetchRequest(
         from: start,
         to: min(endOfYear, now),
-        includeIntervalProbes: false
+        includeIntervalProbes: false,
+        includePayloadShapeDiagnostics: false
       )
     }
   }
@@ -400,7 +422,8 @@ final class AppModel {
   private func fetchRequest(
     from: Date,
     to: Date,
-    includeIntervalProbes: Bool
+    includeIntervalProbes: Bool,
+    includePayloadShapeDiagnostics: Bool
   ) -> EightSleepFetchRequest {
     let formatter = DateFormatter()
     formatter.calendar = Calendar(identifier: .gregorian)
@@ -411,7 +434,8 @@ final class AppModel {
       from: formatter.string(from: from),
       to: formatter.string(from: to),
       timeZoneIdentifier: localCalendar.timeZone.identifier,
-      includeIntervalProbes: includeIntervalProbes
+      includeIntervalProbes: includeIntervalProbes,
+      includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
     )
   }
 

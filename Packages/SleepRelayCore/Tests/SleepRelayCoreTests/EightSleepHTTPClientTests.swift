@@ -133,13 +133,28 @@ struct EightSleepHTTPClientTests {
 
     let snapshot = try await client.connect(
       credentials: EightSleepCredentials(email: "person@example.test", password: "password"),
-      request: EightSleepFetchRequest(from: "2026-08-28", to: "2026-08-28", timeZoneIdentifier: "UTC")
+      request: EightSleepFetchRequest(
+        from: "2026-08-28",
+        to: "2026-08-28",
+        timeZoneIdentifier: "UTC",
+        includePayloadShapeDiagnostics: true
+      )
     )
 
     let night = try #require(snapshot.nights.first)
     #expect(night.discoveredRestingHeartRateBPM == 55)
     #expect(night.intervalProbe?.series.first?.sampleCount == 2)
     #expect(night.intervalProbe?.fieldPaths.contains("heartRate[]") == true)
+    #expect(night.trendsPathSummaries.contains { $0.path == "sessions" })
+    #expect(night.intervalProbe?.pathSummaries.contains { $0.path == "heartRate" } == true)
+    #expect(
+      night.intervalProbe?.pathSummaries.first { $0.path == "heartRate" }?
+        .typicalCadenceBucket == .oneToTenMinutes
+    )
+    let structureReport = EightSleepDiagnosticReport.sanitizedStructureReport(for: night)
+    #expect(!structureReport.contains("user-1"))
+    #expect(!structureReport.contains("session-secret"))
+    #expect(!structureReport.contains("2026-08-28"))
     let requests = await transport.requests
     #expect(requests.count == 3)
     #expect(requests[2].httpMethod == "GET")
@@ -188,6 +203,7 @@ struct EightSleepHTTPClientTests {
 
     #expect(snapshot.nights.count == 1)
     #expect(snapshot.nights.first?.intervalProbe == nil)
+    #expect(snapshot.nights.first?.trendsPathSummaries.isEmpty == true)
     #expect(await transport.requests.count == 2)
   }
 }
