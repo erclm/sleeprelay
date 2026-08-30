@@ -1,9 +1,10 @@
 import BackgroundTasks
 import Foundation
+import SleepRelayCore
 
 @MainActor
 protocol BackgroundRefreshScheduling {
-  func scheduleNextRefresh(after date: Date)
+  func scheduleNextRefresh(after date: Date, recentWakeDates: [Date])
   func cancel()
 }
 
@@ -17,9 +18,12 @@ struct BackgroundRefreshScheduler: BackgroundRefreshScheduling {
     self.scheduler = scheduler
   }
 
-  func scheduleNextRefresh(after date: Date) {
+  func scheduleNextRefresh(after date: Date, recentWakeDates: [Date]) {
     let request = BGAppRefreshTaskRequest(identifier: Self.identifier)
-    request.earliestBeginDate = Self.nextEarliestRefreshDate(after: date)
+    request.earliestBeginDate = BackgroundRefreshSchedule.nextDate(
+      after: date,
+      recentWakeDates: recentWakeDates
+    )
 
     scheduler.cancel(taskRequestWithIdentifier: Self.identifier)
     try? scheduler.submit(request)
@@ -28,35 +32,10 @@ struct BackgroundRefreshScheduler: BackgroundRefreshScheduling {
   func cancel() {
     scheduler.cancel(taskRequestWithIdentifier: Self.identifier)
   }
-
-  static func nextEarliestRefreshDate(
-    after date: Date,
-    calendar sourceCalendar: Calendar = .autoupdatingCurrent
-  ) -> Date {
-    var calendar = sourceCalendar
-    calendar.timeZone = .autoupdatingCurrent
-
-    let startOfDay = calendar.startOfDay(for: date)
-    let todayRefresh = calendar.date(
-      bySettingHour: 5,
-      minute: 0,
-      second: 0,
-      of: startOfDay
-    ) ?? date.addingTimeInterval(6 * 60 * 60)
-    if todayRefresh > date { return todayRefresh }
-
-    let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? date
-    return calendar.date(
-      bySettingHour: 5,
-      minute: 0,
-      second: 0,
-      of: nextDay
-    ) ?? date.addingTimeInterval(24 * 60 * 60)
-  }
 }
 
 @MainActor
 struct NoopBackgroundRefreshScheduler: BackgroundRefreshScheduling {
-  func scheduleNextRefresh(after _: Date) {}
+  func scheduleNextRefresh(after _: Date, recentWakeDates _: [Date]) {}
   func cancel() {}
 }

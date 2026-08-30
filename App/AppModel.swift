@@ -362,7 +362,14 @@ final class AppModel {
 
   private func scheduleBackgroundRefresh(after date: Date) {
     guard hasSavedCredentials else { return }
-    backgroundRefreshScheduler.scheduleNextRefresh(after: date)
+    let recentWakeDates = nights.lazy
+      .filter { !$0.isProcessing }
+      .prefix(7)
+      .compactMap(\.presenceEnd)
+    backgroundRefreshScheduler.scheduleNextRefresh(
+      after: date,
+      recentWakeDates: Array(recentWakeDates)
+    )
   }
 
   private func recentNightsRequest(now: Date = .now) -> EightSleepFetchRequest {

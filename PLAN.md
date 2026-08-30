@@ -606,7 +606,8 @@ credentials in code/logs; saved login material remains in device-only Keychain.
 - [x] Add foreground auto-sync after permission is already granted, with a
   once-per-sleep-day lifecycle refresh policy.
 - [x] Register a best-effort iOS background app-refresh task for saved logins;
-  reschedule it after each run and use it for already-authorized RHR auto-sync.
+  reschedule it after each run based on recent wake times and use it for
+  already-authorized RHR auto-sync.
 
 Core policy tests, the app build, and fixture UI import/remove flows pass. The
 remaining proof is an on-iPhone write, Health app readback, and repeat sync.

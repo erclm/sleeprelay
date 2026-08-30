@@ -20,7 +20,7 @@ struct AboutView: View {
 
       Section("Automatic refresh") {
         Text(
-          "With a saved login, Sleep Relay asks iOS to fetch new nights in the background after your sleep window and also checks when you open the app. iOS chooses when background refresh runs."
+          "With a saved login, Sleep Relay asks iOS to fetch new nights after your typical wake time and also checks when you open the app. iOS chooses when background refresh runs."
         )
       }
 
