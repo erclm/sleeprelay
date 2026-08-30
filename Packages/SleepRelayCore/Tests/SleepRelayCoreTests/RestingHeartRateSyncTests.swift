@@ -13,11 +13,26 @@ struct RestingHeartRateSyncTests {
     #expect(candidate.syncIdentifier == "app.sleeprelay.rhr.2026-08-29")
     #expect(candidate.startDate == start)
     #expect(candidate.endDate == end)
+    #expect(candidate.isValidForHealthKitWrite)
+    #expect(RestingHeartRateSyncCandidate.healthKitAlgorithmVersion == 1)
 
     #expect(makeNight(reportedRHR: .infinity).restingHeartRateSyncCandidate == nil)
     #expect(makeNight(reportedRHR: 10).restingHeartRateSyncCandidate == nil)
     #expect(makeNight(reportedRHR: nil).restingHeartRateSyncCandidate == nil)
     #expect(makeNight(reportedRHR: 55, processing: true).restingHeartRateSyncCandidate == nil)
+  }
+
+  @Test
+  func rejectsInvalidDirectCandidatesBeforeHealthKitConstruction() {
+    let invalidCandidate = RestingHeartRateSyncCandidate(
+      id: "invalid",
+      day: "2026-08-29",
+      valueBPM: .infinity,
+      startDate: end,
+      endDate: end
+    )
+
+    #expect(!invalidCandidate.isValidForHealthKitWrite)
   }
 
   @Test

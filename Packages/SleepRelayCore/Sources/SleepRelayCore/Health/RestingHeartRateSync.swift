@@ -2,6 +2,7 @@ import Foundation
 
 public struct RestingHeartRateSyncCandidate: Hashable, Identifiable, Sendable {
   public static let algorithmVersion = "eight-reported-rhr-v1"
+  public static let healthKitAlgorithmVersion = 1
   public static let syncVersion = 1
 
   public let id: String
@@ -12,6 +13,13 @@ public struct RestingHeartRateSyncCandidate: Hashable, Identifiable, Sendable {
 
   public var syncIdentifier: String {
     "app.sleeprelay.rhr.\(day)"
+  }
+
+  public var isValidForHealthKitWrite: Bool {
+    valueBPM.isFinite
+      && (20 ... 250).contains(valueBPM)
+      && startDate < endDate
+      && !day.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
   }
 
   public init(

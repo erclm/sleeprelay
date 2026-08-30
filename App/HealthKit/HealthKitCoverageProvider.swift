@@ -4,11 +4,14 @@ import SleepRelayCore
 
 enum HealthKitCoverageError: LocalizedError {
   case unavailable
+  case invalidRestingHeartRateCandidate
 
   var errorDescription: String? {
     switch self {
     case .unavailable:
       "Health data is not available on this device."
+    case .invalidRestingHeartRateCandidate:
+      "The Eight Sleep resting-heart-rate sample is invalid and was not written."
     }
   }
 }
@@ -117,7 +120,18 @@ final class HealthKitCoverageProvider: HealthCoverageProviding {
   func saveRestingHeartRate(_ candidate: RestingHeartRateSyncCandidate) async throws {
     guard isHealthDataAvailable else { throw HealthKitCoverageError.unavailable }
 
-    let sample = HKQuantitySample(
+    let sample = try Self.makeRestingHeartRateSample(candidate)
+    try await healthStore.save(sample)
+  }
+
+  static func makeRestingHeartRateSample(
+    _ candidate: RestingHeartRateSyncCandidate
+  ) throws -> HKQuantitySample {
+    guard candidate.isValidForHealthKitWrite else {
+      throw HealthKitCoverageError.invalidRestingHeartRateCandidate
+    }
+
+    return HKQuantitySample(
       type: Self.restingHeartRateType,
       quantity: HKQuantity(unit: Self.beatsPerMinute, doubleValue: candidate.valueBPM),
       start: candidate.endDate,
@@ -125,11 +139,13 @@ final class HealthKitCoverageProvider: HealthCoverageProviding {
       metadata: [
         HKMetadataKeySyncIdentifier: candidate.syncIdentifier,
         HKMetadataKeySyncVersion: RestingHeartRateSyncCandidate.syncVersion,
-        HKMetadataKeyAlgorithmVersion: RestingHeartRateSyncCandidate.algorithmVersion,
+        // Apple's predefined key accepts only an integer NSNumber. Keep the
+        // human-readable algorithm identifier under our own namespaced key.
+        HKMetadataKeyAlgorithmVersion: RestingHeartRateSyncCandidate.healthKitAlgorithmVersion,
+        "app.sleeprelay.algorithmVersion": RestingHeartRateSyncCandidate.algorithmVersion,
         "app.sleeprelay.eightSleepDay": candidate.day,
       ]
     )
-    try await healthStore.save(sample)
   }
 
   func deleteRestingHeartRate(syncIdentifier: String) async throws {
