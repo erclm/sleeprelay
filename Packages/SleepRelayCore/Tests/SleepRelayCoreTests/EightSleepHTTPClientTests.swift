@@ -110,13 +110,13 @@ struct EightSleepHTTPClientTests {
       ),
       (
         Data(
-          #"{"days":[{"day":"2026-08-28","sessions":[{"id":"session-secret","timeseries":{}}]}]}"#.utf8
+          #"{"days":[{"day":"2026-08-28","mainSessionId":"session-secret","sleepQualityScore":{"hrv":{"current":40.5}},"sessions":[{"id":"other-session-secret","hrvAlgorithmVersion":"private-other-version","timeseries":{"heartRate":[["2026-08-28T06:00:00Z",999]]}},{"id":"session-secret","hrvAlgorithmVersion":"private-selected-version","timeseries":{"heartRate":[["2026-08-28T06:00:00Z",58],["2026-08-28T06:05:00Z",56]],"hrv":[["2026-08-28T06:00:00Z",39],["2026-08-28T06:05:00Z",42]],"rmssd":[["2026-08-28T06:00:00Z",39],["2026-08-28T06:05:00Z",42]]}}]}]}"#.utf8
         ),
         response(baseURL)
       ),
       (
         Data(
-          #"{"summary":{"rhr":55},"heartRate":[["2026-08-28T06:00:00Z",58],["2026-08-28T06:05:00Z",56]]}"#.utf8
+          #"{"summary":{"rhr":55},"hrvAlgorithmVersion":"private-selected-version","timeseries":{"heartRate":[["2026-08-28T06:00:00Z",58],["2026-08-28T06:05:00Z",56]],"hrv":[["2026-08-28T06:00:00Z",39],["2026-08-28T06:05:00Z",42]],"rmssd":[["2026-08-28T06:00:00Z",39],["2026-08-28T06:05:00Z",42]]}}"#.utf8
         ),
         response(baseURL)
       ),
@@ -144,17 +144,40 @@ struct EightSleepHTTPClientTests {
     let night = try #require(snapshot.nights.first)
     #expect(night.discoveredRestingHeartRateBPM == 55)
     #expect(night.intervalProbe?.series.first?.sampleCount == 2)
-    #expect(night.intervalProbe?.fieldPaths.contains("heartRate[]") == true)
+    #expect(night.intervalProbe?.fieldPaths.contains("timeseries.heartRate[]") == true)
     #expect(night.trendsPathSummaries.contains { $0.path == "sessions" })
-    #expect(night.intervalProbe?.pathSummaries.contains { $0.path == "heartRate" } == true)
     #expect(
-      night.intervalProbe?.pathSummaries.first { $0.path == "heartRate" }?
+      night.intervalProbe?.pathSummaries.contains { $0.path == "timeseries.heartRate" }
+        == true
+    )
+    #expect(
+      night.intervalProbe?.pathSummaries.first { $0.path == "timeseries.heartRate" }?
         .typicalCadenceBucket == .oneToTenMinutes
     )
+    #expect(night.intervalProbe?.seriesRelationships.count == 5)
+    #expect(night.intervalProbe?.algorithmVersionRelationship == .exactMatch)
+    #expect(
+      night.intervalProbe?.nightlyHRVConsistency.first { $0.series == .trendsHRV }?
+        .matchingAggregates.map(\.aggregate) == [.mean, .median]
+    )
+    #expect(
+      night.intervalProbe?.seriesRelationships.first {
+        $0.comparison == .heartRateAcrossEndpoints
+      }?.valueRelation == .allExact
+    )
     let structureReport = EightSleepDiagnosticReport.sanitizedStructureReport(for: night)
+    let relationshipReport = EightSleepSeriesRelationshipReport.sanitizedReport(for: night)
     #expect(!structureReport.contains("user-1"))
     #expect(!structureReport.contains("session-secret"))
+    #expect(!structureReport.contains("other-session-secret"))
     #expect(!structureReport.contains("2026-08-28"))
+    #expect(relationshipReport.contains("Format: series-relationship-v1"))
+    #expect(!relationshipReport.contains("user-1"))
+    #expect(!relationshipReport.contains("session-secret"))
+    #expect(!relationshipReport.contains("other-session-secret"))
+    #expect(!relationshipReport.contains("2026-08-28"))
+    #expect(!relationshipReport.contains("private-selected-version"))
+    #expect(!relationshipReport.contains("private-other-version"))
     let requests = await transport.requests
     #expect(requests.count == 3)
     #expect(requests[2].httpMethod == "GET")

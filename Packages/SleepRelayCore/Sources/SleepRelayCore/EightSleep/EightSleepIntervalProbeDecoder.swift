@@ -4,12 +4,23 @@ enum EightSleepIntervalProbeDecoder {
   static func decode(
     _ data: Data,
     redacting identifiers: Set<String> = [],
-    includePayloadShapeDiagnostics: Bool = false
+    includePayloadShapeDiagnostics: Bool = false,
+    trendsSeries: [EightSleepTimeSeries] = [],
+    trendsAlgorithmVersion: String? = nil,
+    nightlyHRVMilliseconds: Double? = nil
   ) throws -> EightSleepIntervalProbe {
     let root = try JSONDecoder().decode(JSONValue.self, from: data)
     var fieldPaths = Set<String>()
     var metricValues: [String: Double] = [:]
     var seriesByPath: [String: EightSleepSeriesSummary] = [:]
+    let relationshipAnalysis = includePayloadShapeDiagnostics
+      ? EightSleepSeriesRelationshipAnalyzer.analyze(
+        trendsSeries: trendsSeries,
+        intervalRoot: root,
+        trendsAlgorithmVersion: trendsAlgorithmVersion,
+        nightlyHRVMilliseconds: nightlyHRVMilliseconds
+      )
+      : nil
 
     inspect(
       root,
@@ -33,7 +44,11 @@ enum EightSleepIntervalProbeDecoder {
           root,
           redacting: identifiers
         )
-        : []
+        : [],
+      seriesRelationships: relationshipAnalysis?.relationships ?? [],
+      algorithmVersionRelationship: relationshipAnalysis?.algorithmVersionRelationship
+        ?? .notCaptured,
+      nightlyHRVConsistency: relationshipAnalysis?.nightlyHRVConsistency ?? []
     )
   }
 

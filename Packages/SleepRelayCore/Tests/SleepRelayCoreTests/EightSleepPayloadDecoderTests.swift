@@ -46,6 +46,7 @@ struct EightSleepPayloadDecoderTests {
     #expect(night.score == 86)
     #expect(night.averageHeartRateBPM == 57)
     #expect(night.reportedHRVMilliseconds == 48)
+    #expect(night.diagnosticNightlyHRVCurrentMilliseconds == 48)
     #expect(night.averageRespiratoryRate == 14.5)
     #expect(night.explicitRestingHeartRateBPM == 55)
     #expect(night.timeSeries.first?.name == "heartRate")
@@ -60,6 +61,18 @@ struct EightSleepPayloadDecoderTests {
   }
 
   @Test
+  func doesNotTreatHRVAverageAsTheCurrentNightlySummary() throws {
+    let data = Data(
+      #"{"days":[{"day":"2026-08-28","sleepQualityScore":{"hrv":{"average":47}},"sessions":[]}] }"#.utf8
+    )
+
+    let night = try #require(EightSleepPayloadDecoder.decodeTrends(data).first)
+
+    #expect(night.reportedHRVMilliseconds == 47)
+    #expect(night.diagnosticNightlyHRVCurrentMilliseconds == nil)
+  }
+
+  @Test
   func discoversAnUnrecognizedNestedRestingHeartRateFieldWithoutRawPayloadStorage() throws {
     let data = Data(
       #"{"days":[{"day":"2026-08-28","biometrics":{"rhr":55},"sessions":[]}]}"#.utf8
@@ -69,6 +82,18 @@ struct EightSleepPayloadDecoderTests {
 
     #expect(night.explicitRestingHeartRateBPM == 55)
     #expect(night.metricFields == [EightSleepMetricField(path: "biometrics.rhr", value: 55)])
+  }
+
+  @Test
+  func prefersExplicitMainSessionOverArrayOrder() throws {
+    let data = Data(
+      #"{"days":[{"day":"2026-08-28","mainSessionId":"main-session","sessions":[{"id":"main-session","timeseries":{}},{"id":"later-array-session","timeseries":{}}]}]}"#.utf8
+    )
+
+    let night = try #require(EightSleepPayloadDecoder.decodeTrends(data).first)
+
+    #expect(night.latestSessionID == "main-session")
+    #expect(night.id == "main-session")
   }
 
   @Test

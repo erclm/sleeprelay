@@ -117,7 +117,66 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
               path: "intervals[].heartRate",
               kindCounts: [EightSleepProbeKindCount(kind: .number, count: 4)]
             ),
-          ]
+          ],
+          seriesRelationships: [
+            EightSleepSeriesRelationship(
+              comparison: .heartRateAcrossEndpoints,
+              availability: .available,
+              leftObservationCount: 4,
+              rightObservationCount: 4,
+              leftOrder: .ascending,
+              rightOrder: .ascending,
+              timestampRelation: .identical,
+              subsetStride: .notApplicable,
+              sharedTimestampCount: 4,
+              comparableValueCount: 4,
+              exactValueMatchCount: 4,
+              nearValueMatchCount: 0,
+              oneDecimalRoundedValueMatchCount: 0,
+              wholeNumberRoundedValueMatchCount: 0,
+              differentValueCount: 0,
+              leftDuplicateTimestampCount: 0,
+              rightDuplicateTimestampCount: 0,
+              valueRelation: .allExact,
+              coMovement: .unavailable
+            )
+          ] + [
+            EightSleepSeriesComparison.trendsHRVToRMSSD,
+            .intervalsHRVToRMSSD,
+            .hrvAcrossEndpoints,
+            .rmssdAcrossEndpoints,
+          ].map { comparison in
+            EightSleepSeriesRelationship(
+              comparison: comparison,
+              availability: .bothUnavailable,
+              leftObservationCount: 0,
+              rightObservationCount: 0,
+              leftOrder: .unavailable,
+              rightOrder: .unavailable,
+              timestampRelation: .unavailable,
+              subsetStride: .notApplicable,
+              sharedTimestampCount: 0,
+              comparableValueCount: 0,
+              exactValueMatchCount: 0,
+              nearValueMatchCount: 0,
+              oneDecimalRoundedValueMatchCount: 0,
+              wholeNumberRoundedValueMatchCount: 0,
+              differentValueCount: 0,
+              leftDuplicateTimestampCount: 0,
+              rightDuplicateTimestampCount: 0,
+              valueRelation: .unavailable,
+              coMovement: .unavailable
+            )
+          },
+          algorithmVersionRelationship: .bothAbsent,
+          nightlyHRVConsistency: EightSleepNightlyHRVSeries.allCases.map { series in
+            EightSleepNightlyHRVConsistency(
+              series: series,
+              availability: .seriesUnavailable,
+              observationCount: 0,
+              matchingAggregates: []
+            )
+          }
         ),
         trendsPathSummaries: [
           EightSleepProbePathSummary(

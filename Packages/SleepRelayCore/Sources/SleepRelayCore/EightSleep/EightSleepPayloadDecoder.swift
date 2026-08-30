@@ -1,5 +1,10 @@
 import Foundation
 
+struct EightSleepDecodedTrends {
+  let nights: [EightSleepNight]
+  let selectedHRVAlgorithmVersionsBySessionID: [String: String]
+}
+
 public enum EightSleepPayloadDecoder {
   private static let maximumSleepDurationSeconds: Double = 48 * 60 * 60
 
@@ -8,6 +13,18 @@ public enum EightSleepPayloadDecoder {
     redacting identifiers: Set<String> = [],
     includePayloadShapeDiagnostics: Bool = false
   ) throws -> [EightSleepNight] {
+    try decodeTrendsWithDiagnosticContext(
+      data,
+      redacting: identifiers,
+      includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
+    ).nights
+  }
+
+  static func decodeTrendsWithDiagnosticContext(
+    _ data: Data,
+    redacting identifiers: Set<String> = [],
+    includePayloadShapeDiagnostics: Bool = false
+  ) throws -> EightSleepDecodedTrends {
     let root = try JSONDecoder().decode(JSONValue.self, from: data)
     guard
       let object = root.objectValue,
@@ -16,15 +33,34 @@ public enum EightSleepPayloadDecoder {
       throw EightSleepAPIError.invalidPayload
     }
 
-    return days.enumerated().compactMap { index, value in
-      guard let day = value.objectValue else { return nil }
-      return decodeNight(
+    var nights: [EightSleepNight] = []
+    var versionsBySessionID: [String: String] = [:]
+    for (index, value) in days.enumerated() {
+      guard let day = value.objectValue else { continue }
+      let night = decodeNight(
         day,
         fallbackIndex: index,
         redacting: identifiers,
         includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
       )
+      nights.append(night)
+      if includePayloadShapeDiagnostics,
+        let sessionID = night.latestSessionID,
+        let selectedSession = day["sessions"]?.arrayValue?.compactMap(\.objectValue).first(
+          where: { session in
+            session.firstString(at: [["id"], ["sessionId"]]) == sessionID
+          }
+        ),
+        let version = selectedSession["hrvAlgorithmVersion"]?.stringValue,
+        !version.isEmpty
+      {
+        versionsBySessionID[sessionID] = version
+      }
     }
+    return EightSleepDecodedTrends(
+      nights: nights,
+      selectedHRVAlgorithmVersionsBySessionID: versionsBySessionID
+    )
   }
 
   private static func decodeNight(
@@ -36,9 +72,10 @@ public enum EightSleepPayloadDecoder {
     let day = object.firstString(at: [["day"]]) ?? "Unknown night"
     let sessions = object["sessions"]?.arrayValue ?? []
     let sessionObjects = sessions.compactMap(\.objectValue)
-    let sessionID = sessionObjects.reversed().lazy.compactMap {
+    let fallbackSessionID = sessionObjects.reversed().lazy.compactMap {
       $0.firstString(at: [["id"], ["sessionId"]])
     }.first
+    let sessionID = object.firstString(at: [["mainSessionId"]]) ?? fallbackSessionID
     let identifier =
       object.firstString(at: [["id"], ["sessionId"]])
       ?? sessionID

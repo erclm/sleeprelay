@@ -79,6 +79,41 @@ struct EightSleepPayloadShapeAnalyzerTests {
   }
 
   @Test
+  func doesNotTreatEpochLikeIdentifierValuesAsTimestamps() throws {
+    let data = Data(
+      #"{"id":"1724824800","mainSessionId":"1724824801","sessionIds":["1724824802","1724824803"],"fluid":"1724824804","fluids":"1724824805","timestamp":"2026-08-28T06:00:00Z"}"#.utf8
+    )
+
+    let probe = try EightSleepIntervalProbeDecoder.decode(
+      data,
+      includePayloadShapeDiagnostics: true
+    )
+
+    #expect(summary("id", in: probe.pathSummaries)?.kindCounts.first?.kind == .text)
+    #expect(summary("mainSessionId", in: probe.pathSummaries)?.kindCounts.first?.kind == .text)
+    #expect(summary("sessionIds", in: probe.pathSummaries)?.timestampObservationCount == 0)
+    #expect(summary("sessionIds[]", in: probe.pathSummaries)?.kindCounts.first?.kind == .text)
+    #expect(summary("fluid", in: probe.pathSummaries)?.kindCounts.first?.kind == .timestampString)
+    #expect(summary("fluids", in: probe.pathSummaries)?.kindCounts.first?.kind == .timestampString)
+    #expect(summary("timestamp", in: probe.pathSummaries)?.kindCounts.first?.kind == .timestampString)
+  }
+
+  @Test
+  func doesNotClaimOneTypicalBucketWhenEvenMiddleGapsCrossABoundary() throws {
+    let data = Data(
+      #"{"series":[["2026-08-28T06:00:00Z",1],["2026-08-28T06:09:59Z",2],["2026-08-28T06:20:00Z",3]]}"#.utf8
+    )
+
+    let probe = try EightSleepIntervalProbeDecoder.decode(
+      data,
+      includePayloadShapeDiagnostics: true
+    )
+
+    #expect(summary("series", in: probe.pathSummaries)?.cadenceGapCount == 2)
+    #expect(summary("series", in: probe.pathSummaries)?.typicalCadenceBucket == nil)
+  }
+
+  @Test
   func structureReportRedactsIdentifiersDatesTimestampsAndAllPayloadValues() throws {
     let trendsData = Data(
       #"{"days":[{"day":"2099-12-31","id":"night-secret-1234567890","sessions":[{"id":"session-secret-1234567890","timeseries":{}}],"token":"raw-token-secret","heartRateVariability1":[987653.321],"mystery":[987654.321,987655.321]}]}"#.utf8

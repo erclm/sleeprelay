@@ -234,11 +234,12 @@ public actor EightSleepHTTPClient: EightSleepProviding {
       throw EightSleepAPIError.server(statusCode: response.statusCode)
     }
 
-    var nights = try EightSleepPayloadDecoder.decodeTrends(
+    let decodedTrends = try EightSleepPayloadDecoder.decodeTrendsWithDiagnosticContext(
       data,
       redacting: [session.userID],
       includePayloadShapeDiagnostics: request.includePayloadShapeDiagnostics
     )
+    var nights = decodedTrends.nights
     guard request.includeIntervalProbes else {
       return EightSleepSnapshot(fetchedAt: Date(), nights: nights)
     }
@@ -250,7 +251,16 @@ public actor EightSleepHTTPClient: EightSleepProviding {
           sessionID: sessionID,
           session: session,
           additionalRedactions: [nights[index].id, nights[index].day],
-          includePayloadShapeDiagnostics: request.includePayloadShapeDiagnostics
+          includePayloadShapeDiagnostics: request.includePayloadShapeDiagnostics,
+          trendsSeries: request.includePayloadShapeDiagnostics
+            ? nights[index].timeSeries.filter { $0.sessionID == sessionID }
+            : [],
+          trendsAlgorithmVersion: request.includePayloadShapeDiagnostics
+            ? decodedTrends.selectedHRVAlgorithmVersionsBySessionID[sessionID]
+            : nil,
+          nightlyHRVMilliseconds: request.includePayloadShapeDiagnostics
+            ? nights[index].diagnosticNightlyHRVCurrentMilliseconds
+            : nil
         )
         nights[index].intervalProbe = result.probe
         if result.shouldStop {
@@ -270,7 +280,10 @@ public actor EightSleepHTTPClient: EightSleepProviding {
     sessionID: String,
     session: Session,
     additionalRedactions: Set<String>,
-    includePayloadShapeDiagnostics: Bool
+    includePayloadShapeDiagnostics: Bool,
+    trendsSeries: [EightSleepTimeSeries],
+    trendsAlgorithmVersion: String?,
+    nightlyHRVMilliseconds: Double?
   ) async throws -> (probe: EightSleepIntervalProbe, shouldStop: Bool) {
     let url = configuration.clientAPIBaseURL
       .appendingPathComponent("users")
@@ -292,7 +305,10 @@ public actor EightSleepHTTPClient: EightSleepProviding {
           try EightSleepIntervalProbeDecoder.decode(
             data,
             redacting: Set([session.userID, sessionID]).union(additionalRedactions),
-            includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
+            includePayloadShapeDiagnostics: includePayloadShapeDiagnostics,
+            trendsSeries: trendsSeries,
+            trendsAlgorithmVersion: trendsAlgorithmVersion,
+            nightlyHRVMilliseconds: nightlyHRVMilliseconds
           ),
           false
         )
