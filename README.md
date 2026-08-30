@@ -144,6 +144,20 @@ Apple Distribution signing certificate. Xcode can cloud-sign when its Apple
 Account has access, while CI needs a distribution certificate and provisioning
 profile supplied through protected secrets.
 
+When the API key cannot use Apple's cloud-managed distribution certificate,
+add the local certificate and App Store provisioning profile to the keychain
+and set these values in the same ignored file:
+
+```bash
+ASC_TEAM_ID=YOUR_TEAM_ID
+ASC_SIGNING_CERTIFICATE=YOUR_DISTRIBUTION_CERTIFICATE_SHA1
+ASC_PROVISIONING_PROFILE="YOUR_APP_STORE_PROFILE_NAME"
+ASC_BUNDLE_ID=app.sleeprelay.ios
+```
+
+The script then generates temporary manual-signing export options without
+putting account-specific signing identifiers or credentials in the repository.
+
 ## Project direction
 
 See [PLAN.md](PLAN.md) for the metric policy, privacy model, architecture,

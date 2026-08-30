@@ -30,6 +30,22 @@ if [[ -n "${ASC_KEY_PATH:-}" || -n "${ASC_KEY_ID:-}" || -n "${ASC_ISSUER_ID:-}" 
   )
 fi
 
+export_options_plist="${repo_root}/Config/TestFlightExportOptions.plist"
+if [[ -n "${ASC_TEAM_ID:-}" || -n "${ASC_SIGNING_CERTIFICATE:-}" || -n "${ASC_PROVISIONING_PROFILE:-}" ]]; then
+  : "${ASC_TEAM_ID:?ASC_TEAM_ID is required when manual distribution signing is configured}"
+  : "${ASC_SIGNING_CERTIFICATE:?ASC_SIGNING_CERTIFICATE is required when manual distribution signing is configured}"
+  : "${ASC_PROVISIONING_PROFILE:?ASC_PROVISIONING_PROFILE is required when manual distribution signing is configured}"
+
+  bundle_id="${ASC_BUNDLE_ID:-app.sleeprelay.ios}"
+  export_options_plist="${work_directory}/TestFlightExportOptions.plist"
+  cp "${repo_root}/Config/TestFlightExportOptions.plist" "${export_options_plist}"
+  /usr/libexec/PlistBuddy -c 'Set :signingStyle manual' "${export_options_plist}"
+  /usr/libexec/PlistBuddy -c "Add :signingCertificate string ${ASC_SIGNING_CERTIFICATE}" "${export_options_plist}"
+  /usr/libexec/PlistBuddy -c "Add :teamID string ${ASC_TEAM_ID}" "${export_options_plist}"
+  /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "${export_options_plist}"
+  /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:${bundle_id} string ${ASC_PROVISIONING_PROFILE}" "${export_options_plist}"
+fi
+
 cd "${repo_root}"
 
 command -v xcodegen >/dev/null
@@ -51,7 +67,7 @@ xcodebuild \
   -exportArchive \
   -archivePath "${archive_path}" \
   -exportPath "${upload_path}" \
-  -exportOptionsPlist Config/TestFlightExportOptions.plist \
+  -exportOptionsPlist "${export_options_plist}" \
   -allowProvisioningUpdates \
   "${authentication_args[@]}"
 
