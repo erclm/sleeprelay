@@ -39,7 +39,7 @@ struct HealthCoverageView: View {
       Label("Audit Apple Health", systemImage: "heart.text.square")
     } description: {
       Text(
-        "Sleep Relay can read recent sleep, heart-rate, respiratory-rate, resting-heart-rate, and HRV SDNN coverage. It will not write or delete anything."
+        "Sleep Relay can run a read-only audit of recent sleep, heart-rate, respiratory-rate, resting-heart-rate, and HRV SDNN coverage. RHR imports are reviewed separately from an Eight night."
       )
     } actions: {
       Button("Allow Read-Only Access") {
@@ -83,9 +83,9 @@ struct HealthCoverageView: View {
       }
 
       Section("Important") {
-        Label("No HealthKit writes or deletions", systemImage: "checkmark.shield")
+        Label("This coverage refresh is read-only", systemImage: "checkmark.shield")
         Text(
-          "No visible samples can mean there is no data, read access was denied, or access is limited. Sleep Relay cannot distinguish those cases and will not treat an empty result as proof that data is missing."
+          "No visible samples can mean there is no data, read access was denied, or access is limited. Sleep Relay cannot distinguish those cases and will not treat an empty result as proof that data is missing. Only a separately confirmed RHR import can write or remove Sleep Relay's own sample."
         )
         .font(.footnote)
         .foregroundStyle(.secondary)

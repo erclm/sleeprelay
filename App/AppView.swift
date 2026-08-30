@@ -3,6 +3,7 @@ import SwiftUI
 struct AppView: View {
   @Bindable var model: AppModel
   @Bindable var healthModel: HealthCoverageModel
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
     TabView(selection: $model.selectedTab) {
@@ -13,7 +14,7 @@ struct AppView: View {
       .tag(AppTab.connect)
 
       NavigationStack {
-        SleepDataView(model: model)
+        SleepDataView(model: model, healthModel: healthModel)
       }
       .tabItem { Label("Eight Data", systemImage: "bed.double") }
       .tag(AppTab.data)
@@ -25,10 +26,21 @@ struct AppView: View {
       .tag(AppTab.health)
 
       NavigationStack {
-        AboutView()
+        AboutView(model: model)
       }
       .tabItem { Label("About", systemImage: "info.circle") }
       .tag(AppTab.about)
+    }
+    .task {
+      await model.refreshForLifecycleIfNeeded()
+    }
+    .onChange(of: scenePhase) { _, phase in
+      guard phase == .active else { return }
+      Task { await model.refreshForLifecycleIfNeeded() }
+    }
+    .onChange(of: model.connectionState) { _, state in
+      guard case .connected = state else { return }
+      Task { await healthModel.automaticSyncIfEligible(nights: model.nights) }
     }
   }
 }

@@ -2,6 +2,9 @@
 EIGHT_SLEEP_CLIENT_ID =
 EIGHT_SLEEP_CLIENT_SECRET =
 DEVELOPMENT_TEAM =
+APP_DISPLAY_NAME = Sleep Relay
+SLEEP_RELAY_BUILD_CHANNEL = Local
+SLEEP_RELAY_GIT_SHA = unknown
 
 // Optional local values. This file is ignored by Git.
 #include? "Local.xcconfig"

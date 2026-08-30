@@ -11,13 +11,18 @@
 		1F75A3B7C261D16D9500CCEF /* HealthCoverageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD1242DA667509AC42B804C /* HealthCoverageView.swift */; };
 		43357E6FF4BB49A04BAFF73A /* HealthKitCoverageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */; };
 		54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */; };
+		5F69D44176ABA0AFEFCB7365 /* BackgroundRefreshScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */; };
 		7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7403F325772D97732985AB5E /* SleepDataView.swift */; };
+		96669DDC005BE79EAD474554 /* RestingHeartRateSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5E7E6FB0BDC906CB6C9FDD /* RestingHeartRateSyncView.swift */; };
 		9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */; };
 		9E1A6112F5799DB3A78859C3 /* HealthCoverageProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */; };
 		AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136BACF6FD89CDE9CEF659CD /* AppView.swift */; };
 		B8A3893E894D8E854BCCC440 /* FixtureHealthCoverageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20D5913C87DEAB38CDDF454 /* FixtureHealthCoverageProvider.swift */; };
+		B9AFE4374FFA2921ED1992A6 /* EightSleepCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D81F4C6CD3C0CAF03D1064 /* EightSleepCredentialStore.swift */; };
+		BE7D8F4BFB5F7A4AB0C82625 /* BackfillHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF14D2D876E8F4EFAAA28460 /* BackfillHistoryView.swift */; };
 		C68A3675955012165827B32B /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0467B3B1E727164EF55A06 /* AppModel.swift */; };
 		CF79D75288FCE5C58E79F1AD /* SleepRelayCore in Frameworks */ = {isa = PBXBuildFile; productRef = 551F4F6729E3E6D6A2C9D5F3 /* SleepRelayCore */; };
+		D473BC228AFA4916695F240C /* DeveloperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F9FF1CA3C097DBA092D27A /* DeveloperView.swift */; };
 		D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */; };
 		E712497D9FC49E0D710BDA41 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF051D339B3D447E0890A032 /* Assets.xcassets */; };
 		F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */; };
@@ -28,19 +33,24 @@
 		11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRelayApp.swift; sourceTree = "<group>"; };
 		136BACF6FD89CDE9CEF659CD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageProviding.swift; sourceTree = "<group>"; };
+		2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshScheduler.swift; sourceTree = "<group>"; };
 		3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageModel.swift; sourceTree = "<group>"; };
 		48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepNightDetailView.swift; sourceTree = "<group>"; };
 		513E2975E07FDA255573B68C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitCoverageProvider.swift; sourceTree = "<group>"; };
 		7403F325772D97732985AB5E /* SleepDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDataView.swift; sourceTree = "<group>"; };
+		84D81F4C6CD3C0CAF03D1064 /* EightSleepCredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EightSleepCredentialStore.swift; sourceTree = "<group>"; };
 		8982895A4FC50936DE156F5E /* SleepRelay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SleepRelay.entitlements; sourceTree = "<group>"; };
 		8C0467B3B1E727164EF55A06 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
 		9AD1242DA667509AC42B804C /* HealthCoverageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageView.swift; sourceTree = "<group>"; };
 		9E46681F9EB0CE8CE6B2ACEC /* SleepRelay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SleepRelay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF051D339B3D447E0890A032 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BE5E7E6FB0BDC906CB6C9FDD /* RestingHeartRateSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestingHeartRateSyncView.swift; sourceTree = "<group>"; };
+		BF14D2D876E8F4EFAAA28460 /* BackfillHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackfillHistoryView.swift; sourceTree = "<group>"; };
 		C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		F20D5913C87DEAB38CDDF454 /* FixtureHealthCoverageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureHealthCoverageProvider.swift; sourceTree = "<group>"; };
+		F3F9FF1CA3C097DBA092D27A /* DeveloperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperView.swift; sourceTree = "<group>"; };
 		F478E4DD925E35E408C23703 /* SleepRelayCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SleepRelayCore; path = Packages/SleepRelayCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -70,6 +80,7 @@
 				619F2F6934253618E31829D3 /* About */,
 				C107CB7A55BE23566F1F3A32 /* Connection */,
 				50E51ECCF60FB3BA003574A4 /* Data */,
+				ED60C24099AA98AFA07B6438 /* Developer */,
 				8843CD0BF8AE6A0CC0B5F782 /* Health */,
 			);
 			path = Features;
@@ -100,13 +111,31 @@
 			path = About;
 			sourceTree = "<group>";
 		};
+		7A32B62A3620A1C3CFD485C4 /* Background */ = {
+			isa = PBXGroup;
+			children = (
+				2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */,
+			);
+			path = Background;
+			sourceTree = "<group>";
+		};
 		8843CD0BF8AE6A0CC0B5F782 /* Health */ = {
 			isa = PBXGroup;
 			children = (
+				BF14D2D876E8F4EFAAA28460 /* BackfillHistoryView.swift */,
 				3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */,
 				9AD1242DA667509AC42B804C /* HealthCoverageView.swift */,
+				BE5E7E6FB0BDC906CB6C9FDD /* RestingHeartRateSyncView.swift */,
 			);
 			path = Health;
+			sourceTree = "<group>";
+		};
+		BA28EDDF62EC95F6C1EF14B8 /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				84D81F4C6CD3C0CAF03D1064 /* EightSleepCredentialStore.swift */,
+			);
+			path = Security;
 			sourceTree = "<group>";
 		};
 		C107CB7A55BE23566F1F3A32 /* Connection */ = {
@@ -145,6 +174,14 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		ED60C24099AA98AFA07B6438 /* Developer */ = {
+			isa = PBXGroup;
+			children = (
+				F3F9FF1CA3C097DBA092D27A /* DeveloperView.swift */,
+			);
+			path = Developer;
+			sourceTree = "<group>";
+		};
 		F7CFC8337A6CB62B1F7A3766 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -154,8 +191,10 @@
 				513E2975E07FDA255573B68C /* Info.plist */,
 				8982895A4FC50936DE156F5E /* SleepRelay.entitlements */,
 				11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */,
+				7A32B62A3620A1C3CFD485C4 /* Background */,
 				416CB462340298072AEA89F1 /* Features */,
 				CC29E1D0D248C204C6610131 /* HealthKit */,
+				BA28EDDF62EC95F6C1EF14B8 /* Security */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -190,7 +229,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2700;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					D8505DBA3CAC26FB1CD628F3 = {
 						DevelopmentTeam = "";
@@ -239,12 +278,17 @@
 				54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */,
 				C68A3675955012165827B32B /* AppModel.swift in Sources */,
 				AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */,
+				BE7D8F4BFB5F7A4AB0C82625 /* BackfillHistoryView.swift in Sources */,
+				5F69D44176ABA0AFEFCB7365 /* BackgroundRefreshScheduler.swift in Sources */,
 				9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */,
+				D473BC228AFA4916695F240C /* DeveloperView.swift in Sources */,
+				B9AFE4374FFA2921ED1992A6 /* EightSleepCredentialStore.swift in Sources */,
 				B8A3893E894D8E854BCCC440 /* FixtureHealthCoverageProvider.swift in Sources */,
 				13F60FBE2241FBD9F77B3182 /* HealthCoverageModel.swift in Sources */,
 				9E1A6112F5799DB3A78859C3 /* HealthCoverageProviding.swift in Sources */,
 				1F75A3B7C261D16D9500CCEF /* HealthCoverageView.swift in Sources */,
 				43357E6FF4BB49A04BAFF73A /* HealthKitCoverageProvider.swift in Sources */,
+				96669DDC005BE79EAD474554 /* RestingHeartRateSyncView.swift in Sources */,
 				7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */,
 				D89E56AD2A9FFEE19A6446D3 /* SleepNightDetailView.swift in Sources */,
 				F6EAADEC22911907B246468B /* SleepRelayApp.swift in Sources */,
@@ -262,7 +306,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/SleepRelay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -272,6 +316,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.sleeprelay.ios;
 				PRODUCT_NAME = "Sleep Relay";
 				SDKROOT = iphoneos;
+				SLEEP_RELAY_BUILD_CHANNEL = Release;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -343,15 +388,16 @@
 			};
 			name = Debug;
 		};
-		A4DA775360C21FD1CF0DF26B /* Debug */ = {
+		7F3C47B1AA2E1F1D6FD2095F /* Internal */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "Sleep Relay Nightly";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/SleepRelay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -361,11 +407,96 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.sleeprelay.ios;
 				PRODUCT_NAME = "Sleep Relay";
 				SDKROOT = iphoneos;
+				SLEEP_RELAY_BUILD_CHANNEL = Nightly;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) INTERNAL_TOOLS";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Internal;
+		};
+		A4DA775360C21FD1CF0DF26B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0EBF151AA30B58400E420CE5 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/SleepRelay.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.sleeprelay.ios;
+				PRODUCT_NAME = "Sleep Relay";
+				SDKROOT = iphoneos;
+				SLEEP_RELAY_BUILD_CHANNEL = Development;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		AD22DF7834DC6178BDCF8F5F /* Internal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Internal;
 		};
 		DF716271C5FDE49CC8442371 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -432,6 +563,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A4DA775360C21FD1CF0DF26B /* Debug */,
+				7F3C47B1AA2E1F1D6FD2095F /* Internal */,
 				02A28413F6089A62160E62C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -441,6 +573,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7D326337CD4AC322116634E5 /* Debug */,
+				AD22DF7834DC6178BDCF8F5F /* Internal */,
 				DF716271C5FDE49CC8442371 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

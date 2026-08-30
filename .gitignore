@@ -19,6 +19,7 @@ xcuserdata/
 
 # Local provider configuration and environment files
 Config/Local.xcconfig
+Config/AppStoreConnect.local.env
 .env
 .env.*
 !.env.example

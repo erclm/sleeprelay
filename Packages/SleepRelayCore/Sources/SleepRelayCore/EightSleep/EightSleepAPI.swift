@@ -235,6 +235,10 @@ public actor EightSleepHTTPClient: EightSleepProviding {
     }
 
     var nights = try EightSleepPayloadDecoder.decodeTrends(data)
+    guard request.includeIntervalProbes else {
+      return EightSleepSnapshot(fetchedAt: Date(), nights: nights)
+    }
+
     for index in nights.indices {
       guard let sessionID = nights[index].latestSessionID else { continue }
       do {

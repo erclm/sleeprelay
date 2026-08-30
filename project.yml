@@ -4,11 +4,12 @@ options:
   bundleIdPrefix: app.sleeprelay
   deploymentTarget:
     iOS: "17.0"
-  xcodeVersion: "27.0"
+  xcodeVersion: "26.6"
   createIntermediateGroups: true
 
 configs:
   Debug: debug
+  Internal: release
   Release: release
 
 packages:
@@ -32,6 +33,7 @@ targets:
           - Brand
     configFiles:
       Debug: Config/Base.xcconfig
+      Internal: Config/Base.xcconfig
       Release: Config/Base.xcconfig
     dependencies:
       - package: SleepRelayCore
@@ -47,20 +49,35 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: false
         MARKETING_VERSION: 0.1.0
-        CURRENT_PROJECT_VERSION: 2
+        CURRENT_PROJECT_VERSION: 5
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_EMIT_LOC_STRINGS: true
+      configs:
+        Debug:
+          SLEEP_RELAY_BUILD_CHANNEL: Development
+        Internal:
+          APP_DISPLAY_NAME: Sleep Relay Nightly
+          SLEEP_RELAY_BUILD_CHANNEL: Nightly
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) INTERNAL_TOOLS"
+        Release:
+          SLEEP_RELAY_BUILD_CHANNEL: Release
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Sleep Relay
+        CFBundleDisplayName: $(APP_DISPLAY_NAME)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         EightSleepClientID: $(EIGHT_SLEEP_CLIENT_ID)
         EightSleepClientSecret: $(EIGHT_SLEEP_CLIENT_SECRET)
+        SleepRelayBuildChannel: $(SLEEP_RELAY_BUILD_CHANNEL)
+        SleepRelayGitCommit: $(SLEEP_RELAY_GIT_SHA)
         ITSAppUsesNonExemptEncryption: false
-        NSHealthShareUsageDescription: Sleep Relay reads selected sleep and heart metrics to identify gaps and avoid duplicating data already visible in Apple Health. It does not write or delete Health data in this build.
-        NSHealthUpdateUsageDescription: Sleep Relay does not write or update Apple Health data in this read-only build. Future write features will require separate, explicit permission.
+        BGTaskSchedulerPermittedIdentifiers:
+          - app.sleeprelay.ios.background-refresh
+        NSHealthShareUsageDescription: Sleep Relay reads selected sleep and heart metrics to identify gaps, show existing sources, and avoid duplicate resting-heart-rate imports.
+        NSHealthUpdateUsageDescription: Sleep Relay writes only Eight Sleep reported resting-heart-rate samples after you approve an individual import or history backfill. It never writes Eight HRV as Apple Health SDNN or changes another app's samples.
+        UIBackgroundModes:
+          - fetch
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -74,3 +91,11 @@ schemes:
       config: Debug
     archive:
       config: Release
+  SleepRelay-Internal:
+    build:
+      targets:
+        SleepRelay: all
+    run:
+      config: Internal
+    archive:
+      config: Internal

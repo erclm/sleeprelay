@@ -5,14 +5,15 @@ Health. Simple, private, and transparent.
 
 ## Current status
 
-Sleep Relay is an early read-only prototype. It can:
+Sleep Relay is an early, explicitly controlled prototype. It can:
 
 - authenticate directly with Eight Sleep's unofficial cloud API;
 - fetch the most recent seven nights from the V2 trends endpoint;
-- display known sleep metrics, available response fields, and embedded
-  time-series names and sample counts;
-- distinguish an explicit resting-heart-rate field from average sleeping heart
-  rate;
+- display known sleep metrics in the normal app while keeping response fields,
+  endpoint probes, and time-series summaries behind a hidden Internal-only
+  diagnostics unlock in About;
+- decode Eight's nightly reported resting heart rate separately from its
+  differently defined heart-rate average field;
 - discover heart-, HRV-, respiratory-, and RHR-related numeric field paths
   without retaining a raw Eight response;
 - probe the currently documented read-only intervals endpoint and retain only
@@ -25,24 +26,35 @@ Sleep Relay is an early read-only prototype. It can:
   respiratory rate, resting heart rate, and HRV SDNN;
 - group visible Apple Health samples by metric, sleep night, and source so gaps
   can be investigated without assuming that an empty result proves data is
-  missing; and
+  missing;
+- review and write one Eight-reported RHR sample with stable synchronization
+  metadata, skip visible Eight/Sleep Relay duplicates, warn about other visible
+  sources, and delete only Sleep Relay's own sample;
+- save the Eight login in device-only Apple Keychain, restore it at launch, and
+  request a best-effort iOS background refresh after the user's typical wake
+  time while retaining the foreground refresh when the app becomes active;
+- audit available Eight history from 2015 onward and backfill only RHR nights
+  where no existing source is visible; and
 - label Eight Sleep HRV as RMSSD rather than incorrectly writing it as Apple
   Health SDNN.
 
-It currently has no HealthKit writer, no Eight Sleep mutation endpoints, and no
-Sleep Relay backend. The account password and short-lived access token are kept
-in memory only and disappear when the app disconnects or exits.
+It has no Eight Sleep mutation endpoints and no Sleep Relay backend. The only
+HealthKit writer is the reported-RHR path. A backfill always requires explicit
+confirmation; automatic checks run only after RHR write access has already been
+granted and can be disabled. The account login is stored only in device-bound
+Apple Keychain and is deleted when the app disconnects. Access tokens remain in
+memory.
 
 The live read-only path was validated locally on 2026-08-29: login succeeded
 and the app displayed the account's three available recent nights. No real
 payload was saved to the repository.
 
-The known live trends response did not contain an explicit resting-heart-rate
-field for the inspected night. Average sleeping heart rate also differed from
-the value shown as resting heart rate in the Eight app, so Sleep Relay does not
-map one to the other. The RHR Lab remains a dry-run validation tool and cannot
-write to Apple Health. The intervals response still needs live validation; no
-claim is made that it contains RHR or raw NN/RR intervals.
+For three inspected nights, `sleepQualityScore.heartRate.current` exactly
+matched the RHR shown in the Eight app (55, 51, and 51 bpm). Sleep Relay uses
+that reported value and does not derive the HealthKit write from the differently
+defined `heartRate.average` field or the experimental RHR Lab series. The
+intervals endpoint was also validated, but it exposed aggregate HRV series, not
+evidence of raw NN/RR beat intervals suitable for SDNN.
 
 Eight Sleep does not publish a supported public API. This integration is
 unofficial and may stop working when its private endpoints change.
@@ -52,14 +64,14 @@ unofficial and may stop working when its private endpoints change.
 Requirements:
 
 - Apple silicon Mac
-- Xcode 27 beta with the iOS 27 SDK
+- Xcode 26.6 or later (use the latest App Store-supported stable or RC build)
 - XcodeGen 2.46 or later
 
 Generate the project:
 
 ```bash
 xcodegen generate
-open -a /Applications/Xcode-beta.app SleepRelay.xcodeproj
+open -a /Applications/Xcode.app SleepRelay.xcodeproj
 ```
 
 Run the pure Swift tests:
@@ -67,6 +79,12 @@ Run the pure Swift tests:
 ```bash
 cd Packages/SleepRelayCore
 swift test
+```
+
+Run the same core tests and Release/Internal simulator builds used by CI:
+
+```bash
+Scripts/ci.sh
 ```
 
 The project builds without an Eight Sleep client configuration, but live login
@@ -89,44 +107,76 @@ them into an issue.
 
 The current prototype can retrieve Eight Sleep data in Simulator. Automatic
 signing for `app.sleeprelay.ios` has also been validated with a physical iPhone:
-the read-only build was signed, installed, trusted, and launched successfully.
+the app was signed, installed, trusted, and launched successfully.
 The HealthKit coverage audit is implemented, simulator-tested, signed with the
 HealthKit entitlement, and installed and launched on the paired iPhone. The
-user-triggered authorization flow and real-source results still need validation
-on the phone. The paid membership was purchased but was not yet active in Xcode
-at the time of this checkpoint; the Personal Team remains sufficient for this
-local device build.
+user-triggered RHR write, history backfill, Health app readback, and
+deduplication behavior still need validation on the phone.
 
 App Store Connect requires both HealthKit purpose strings for an entitled app.
-The update-purpose text explicitly states that this build does not write or
-update Apple Health data, and the authorization request still contains an empty
-write set.
+The update-purpose text limits writes to Eight-reported RHR samples approved
+through an individual review or history backfill. The coverage audit requests
+an empty write set; write permission is requested only after a separate RHR
+confirmation.
 
 ## TestFlight
 
 The App Store Connect record and private `Sleep Relay Internal` group were
-created on 2026-08-29. Version 0.1.0 build 1 was uploaded, passed processing,
-and was assigned to the account holder through automatic internal
-distribution. Build 2 source, containing the sanitized RHR Lab, verified
-read-only intervals probe, and report-sharing workflow, is prepared locally but
-still needs a successful App Store Connect export and upload.
+created on 2026-08-29. Version 0.1.0 build 8 passed the automated Nightly
+pipeline and entered internal testing. It uses the stable Xcode 26.6 release
+toolchain and was uploaded from the protected `nightly` branch.
 
 On the iPhone, install Apple's TestFlight app, accept the Sleep Relay invitation
 for the same Apple Account, and install the available build. The installed
-build can be used away from the Mac. New builds still have to be uploaded from
-the Mac or a future CI service.
+build can be used away from the Mac. A push to the protected `nightly` branch
+runs CI and uploads an Internal-only build from a GitHub-hosted Xcode 26.6 runner.
+Release-candidate uploads are manually dispatched from `main`.
 
-For each subsequent upload, increment `CURRENT_PROJECT_VERSION` in
+For a local Internal-only upload, increment `CURRENT_PROJECT_VERSION` in
 `project.yml`, regenerate the project, and run:
 
 ```bash
-Scripts/upload-testflight.sh
+Scripts/upload-testflight.sh --channel internal
 ```
 
-The script runs the core tests, creates an App Store archive, and uploads it to
-App Store Connect. `ITSAppUsesNonExemptEncryption` is false because Sleep Relay
+Use `--channel release` only from a tested `main` checkout. The script refuses
+dirty working trees by default, runs the core tests, creates an App Store
+archive, and uploads it to App Store Connect. `ITSAppUsesNonExemptEncryption`
+is false because Sleep Relay
 implements no encryption algorithms itself; HTTPS is supplied by Apple's
 networking stack.
+
+For non-interactive App Store Connect authentication, create the ignored local
+file `Config/AppStoreConnect.local.env` with these three variables:
+
+```bash
+ASC_KEY_ID=YOUR_KEY_ID
+ASC_ISSUER_ID=YOUR_ISSUER_ID
+ASC_KEY_PATH=/absolute/path/to/AuthKey_YOUR_KEY_ID.p8
+```
+
+Keep the `.p8` outside the repository with file mode `600`. The API key handles
+App Store Connect authentication, but a TestFlight export still requires an
+Apple Distribution signing certificate. Xcode can cloud-sign when its Apple
+Account has access, while CI needs a distribution certificate and provisioning
+profile supplied through protected secrets.
+
+When the API key cannot use Apple's cloud-managed distribution certificate,
+add the local certificate and App Store provisioning profile to the keychain
+and set these values in the same ignored file:
+
+```bash
+ASC_TEAM_ID=YOUR_TEAM_ID
+ASC_SIGNING_CERTIFICATE=YOUR_DISTRIBUTION_CERTIFICATE_SHA1
+ASC_PROVISIONING_PROFILE="YOUR_APP_STORE_PROFILE_NAME"
+ASC_BUNDLE_ID=app.sleeprelay.ios
+```
+
+The script then generates temporary manual-signing export options without
+putting account-specific signing identifiers or credentials in the repository.
+
+See [RELEASING.md](RELEASING.md) for branch promotion, CI credentials,
+TestFlight channels, and release tagging.
 
 ## Project direction
 

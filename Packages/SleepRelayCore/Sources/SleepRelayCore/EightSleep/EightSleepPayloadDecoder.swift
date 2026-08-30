@@ -1,6 +1,8 @@
 import Foundation
 
 public enum EightSleepPayloadDecoder {
+  private static let maximumSleepDurationSeconds: Double = 48 * 60 * 60
+
   public static func decodeTrends(_ data: Data) throws -> [EightSleepNight] {
     let root = try JSONDecoder().decode(JSONValue.self, from: data)
     guard
@@ -33,6 +35,7 @@ public enum EightSleepPayloadDecoder {
     let metricFields = decodeMetricFields(object)
     let explicitRestingHeartRate =
       object.firstNumber(at: [
+        ["sleepQualityScore", "heartRate", "current"],
         ["restingHeartRate"],
         ["restingHeartRateBpm"],
         ["sleepQualityScore", "restingHeartRate", "current"],
@@ -47,10 +50,12 @@ public enum EightSleepPayloadDecoder {
       presenceEnd: parseDate(object.firstString(at: [["presenceEnd"]])),
       isProcessing: object["processing"]?.boolValue ?? false,
       score: object.firstNumber(at: [["score"]]),
-      sleepDurationSeconds: object.firstNumber(at: [
-        ["sleepDurationSeconds"],
-        ["sleepDuration"],
-      ]),
+      sleepDurationSeconds: durationSeconds(
+        object.firstNumber(at: [
+          ["sleepDurationSeconds"],
+          ["sleepDuration"],
+        ])
+      ),
       averageHeartRateBPM: object.firstNumber(at: [
         ["sleepQualityScore", "heartRate", "average"],
         ["heartRate"],
@@ -61,19 +66,30 @@ public enum EightSleepPayloadDecoder {
         ["sleepQualityScore", "hrv", "average"],
       ]),
       averageRespiratoryRate: object.firstNumber(at: [
+        ["sleepQualityScore", "respiratoryRate", "current"],
         ["sleepQualityScore", "respiratoryRate", "average"],
         ["respiratoryRate"],
       ]),
       tossAndTurns: object.firstNumber(at: [["tnt"]]),
-      lightSleepSeconds: object.firstNumber(at: [["lightDuration"]]),
-      deepSleepSeconds: object.firstNumber(at: [["deepDuration"]]),
-      remSleepSeconds: object.firstNumber(at: [["remDuration"]]),
+      lightSleepSeconds: durationSeconds(object.firstNumber(at: [["lightDuration"]])),
+      deepSleepSeconds: durationSeconds(object.firstNumber(at: [["deepDuration"]])),
+      remSleepSeconds: durationSeconds(object.firstNumber(at: [["remDuration"]])),
       availableFields: object.keys.sorted(),
       metricFields: metricFields,
       timeSeries: decodeTimeSeries(sessionObjects),
       latestSessionID: sessionID,
       intervalProbe: nil
     )
+  }
+
+  private static func durationSeconds(_ value: Double?) -> Double? {
+    guard
+      let value,
+      value.isFinite,
+      value >= 0,
+      value <= maximumSleepDurationSeconds
+    else { return nil }
+    return value
   }
 
   private static func isRestingHeartRateField(_ field: EightSleepMetricField) -> Bool {
