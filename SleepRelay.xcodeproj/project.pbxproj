@@ -11,6 +11,7 @@
 		1F75A3B7C261D16D9500CCEF /* HealthCoverageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD1242DA667509AC42B804C /* HealthCoverageView.swift */; };
 		43357E6FF4BB49A04BAFF73A /* HealthKitCoverageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1C5AB3A29240258414B34 /* HealthKitCoverageProvider.swift */; };
 		54D72D8937F52617A8ACA4D5 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62FE364D8F5E8D11C4FBFA2 /* AboutView.swift */; };
+		5F69D44176ABA0AFEFCB7365 /* BackgroundRefreshScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */; };
 		7ED313B1076EBFFEEA3E47FC /* SleepDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7403F325772D97732985AB5E /* SleepDataView.swift */; };
 		96669DDC005BE79EAD474554 /* RestingHeartRateSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5E7E6FB0BDC906CB6C9FDD /* RestingHeartRateSyncView.swift */; };
 		9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBCB13FBEA251F37AA9E4 /* ConnectionView.swift */; };
@@ -32,6 +33,7 @@
 		11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRelayApp.swift; sourceTree = "<group>"; };
 		136BACF6FD89CDE9CEF659CD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		2A16A870BBCEC2298F2D8C46 /* HealthCoverageProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageProviding.swift; sourceTree = "<group>"; };
+		2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshScheduler.swift; sourceTree = "<group>"; };
 		3B5A31F4C60B2491C16F7AED /* HealthCoverageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCoverageModel.swift; sourceTree = "<group>"; };
 		48A3782B8E3E14D4DB1C186B /* SleepNightDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepNightDetailView.swift; sourceTree = "<group>"; };
 		513E2975E07FDA255573B68C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -109,6 +111,14 @@
 			path = About;
 			sourceTree = "<group>";
 		};
+		7A32B62A3620A1C3CFD485C4 /* Background */ = {
+			isa = PBXGroup;
+			children = (
+				2AFD35C82C4FC249370013EE /* BackgroundRefreshScheduler.swift */,
+			);
+			path = Background;
+			sourceTree = "<group>";
+		};
 		8843CD0BF8AE6A0CC0B5F782 /* Health */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,6 +191,7 @@
 				513E2975E07FDA255573B68C /* Info.plist */,
 				8982895A4FC50936DE156F5E /* SleepRelay.entitlements */,
 				11A9C844FC379219D3A6E6A9 /* SleepRelayApp.swift */,
+				7A32B62A3620A1C3CFD485C4 /* Background */,
 				416CB462340298072AEA89F1 /* Features */,
 				CC29E1D0D248C204C6610131 /* HealthKit */,
 				BA28EDDF62EC95F6C1EF14B8 /* Security */,
@@ -268,6 +279,7 @@
 				C68A3675955012165827B32B /* AppModel.swift in Sources */,
 				AFF88B5745DF8FD971683CDF /* AppView.swift in Sources */,
 				BE7D8F4BFB5F7A4AB0C82625 /* BackfillHistoryView.swift in Sources */,
+				5F69D44176ABA0AFEFCB7365 /* BackgroundRefreshScheduler.swift in Sources */,
 				9A3C47D4BC62571F02AC998E /* ConnectionView.swift in Sources */,
 				D473BC228AFA4916695F240C /* DeveloperView.swift in Sources */,
 				B9AFE4374FFA2921ED1992A6 /* EightSleepCredentialStore.swift in Sources */,

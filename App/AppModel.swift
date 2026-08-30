@@ -65,6 +65,7 @@ final class AppModel {
 
   private let provider: any EightSleepProviding
   private let credentialStore: any EightSleepCredentialStoring
+  private let backgroundRefreshScheduler: any BackgroundRefreshScheduling
   private let preferences: UserDefaults
   private var activeCredentials: EightSleepCredentials?
   private var didLoadCredentials = false
@@ -76,6 +77,8 @@ final class AppModel {
   init(
     provider: any EightSleepProviding,
     credentialStore: any EightSleepCredentialStoring = InMemoryEightSleepCredentialStore(),
+    backgroundRefreshScheduler: any BackgroundRefreshScheduling =
+      NoopBackgroundRefreshScheduler(),
     preferences: UserDefaults = .standard,
     isProviderConfigured: Bool = true,
     initialNights: [EightSleepNight] = [],
@@ -83,6 +86,7 @@ final class AppModel {
   ) {
     self.provider = provider
     self.credentialStore = credentialStore
+    self.backgroundRefreshScheduler = backgroundRefreshScheduler
     self.preferences = preferences
     self.isProviderConfigured = isProviderConfigured
     nights = initialNights
@@ -93,6 +97,7 @@ final class AppModel {
     AppModel(
       provider: EightSleepHTTPClient(configuration: configuration.eightSleep),
       credentialStore: KeychainEightSleepCredentialStore(),
+      backgroundRefreshScheduler: BackgroundRefreshScheduler(),
       isProviderConfigured: configuration.isEightSleepConfigured
     )
   }
@@ -125,6 +130,7 @@ final class AppModel {
       apply(snapshot)
       historyState = .idle
       preferences.set(sleepDayKey(for: snapshot.fetchedAt), forKey: Self.lastAutomaticRefreshKey)
+      scheduleBackgroundRefresh(after: snapshot.fetchedAt)
       selectedTab = .data
     } catch is CancellationError {
       connectionState = .disconnected
@@ -139,6 +145,7 @@ final class AppModel {
       let snapshot = try await refreshOrReconnect(request: recentNightsRequest())
       apply(snapshot)
       preferences.set(sleepDayKey(for: snapshot.fetchedAt), forKey: Self.lastAutomaticRefreshKey)
+      scheduleBackgroundRefresh(after: snapshot.fetchedAt)
     } catch is CancellationError {
       return
     } catch {
@@ -148,7 +155,7 @@ final class AppModel {
 
   /// Restores the Keychain login after launch and refreshes at most once per
   /// local sleep day while this process remains connected. A sleep day rolls
-  /// over at 4 a.m., avoiding an hourly polling timer.
+  /// over at 4 a.m.
   func refreshForLifecycleIfNeeded(now: Date = .now) async {
     guard !isLifecycleRefreshInProgress else { return }
     isLifecycleRefreshInProgress = true
@@ -156,6 +163,7 @@ final class AppModel {
 
     loadSavedCredentialsIfNeeded()
     guard let activeCredentials else { return }
+    scheduleBackgroundRefresh(after: now)
 
     let currentSleepDay = sleepDayKey(for: now)
     if case .connected = connectionState,
@@ -183,11 +191,61 @@ final class AppModel {
       }
       apply(snapshot)
       preferences.set(currentSleepDay, forKey: Self.lastAutomaticRefreshKey)
+      scheduleBackgroundRefresh(after: snapshot.fetchedAt)
       if selectedTab == .connect { selectedTab = .data }
     } catch is CancellationError {
       connectionState = .disconnected
     } catch {
       handleConnectionFailure(error)
+    }
+  }
+
+  /// Refreshes Eight Sleep while the app is suspended or relaunched for a
+  /// background app-refresh task. The caller may then safely attempt an
+  /// already-authorized HealthKit sync with the refreshed nights.
+  @discardableResult
+  func performScheduledBackgroundRefresh(now: Date = .now) async -> Bool {
+    guard !isLifecycleRefreshInProgress else { return false }
+    isLifecycleRefreshInProgress = true
+    defer { isLifecycleRefreshInProgress = false }
+
+    loadSavedCredentialsIfNeeded()
+    guard let activeCredentials else {
+      backgroundRefreshScheduler.cancel()
+      return false
+    }
+
+    defer {
+      if self.activeCredentials != nil {
+        scheduleBackgroundRefresh(after: now)
+      }
+    }
+
+    let wasConnected: Bool
+    if case .connected = connectionState {
+      wasConnected = true
+    } else {
+      wasConnected = false
+    }
+
+    do {
+      let snapshot: EightSleepSnapshot
+      if wasConnected {
+        snapshot = try await refreshOrReconnect(request: recentNightsRequest(now: now))
+      } else {
+        snapshot = try await provider.connect(
+          credentials: activeCredentials,
+          request: recentNightsRequest(now: now)
+        )
+      }
+      apply(snapshot)
+      preferences.set(sleepDayKey(for: now), forKey: Self.lastAutomaticRefreshKey)
+      return true
+    } catch is CancellationError {
+      return false
+    } catch {
+      handleConnectionFailure(error, selectConnectTab: false)
+      return false
     }
   }
 
@@ -235,6 +293,7 @@ final class AppModel {
     nights = []
     historyState = .idle
     preferences.removeObject(forKey: Self.lastAutomaticRefreshKey)
+    backgroundRefreshScheduler.cancel()
     do {
       try credentialStore.delete()
       hasSavedCredentials = false
@@ -288,16 +347,22 @@ final class AppModel {
     connectionState = .connected(lastUpdated: snapshot.fetchedAt)
   }
 
-  private func handleConnectionFailure(_ error: Error) {
+  private func handleConnectionFailure(_ error: Error, selectConnectTab: Bool = true) {
     if error as? EightSleepAPIError == .invalidCredentials {
       activeCredentials = nil
       try? credentialStore.delete()
       hasSavedCredentials = false
       savedEmail = nil
       preferences.removeObject(forKey: Self.lastAutomaticRefreshKey)
+      backgroundRefreshScheduler.cancel()
     }
     connectionState = .failed(message: userFacingMessage(for: error))
-    selectedTab = .connect
+    if selectConnectTab { selectedTab = .connect }
+  }
+
+  private func scheduleBackgroundRefresh(after date: Date) {
+    guard hasSavedCredentials else { return }
+    backgroundRefreshScheduler.scheduleNextRefresh(after: date)
   }
 
   private func recentNightsRequest(now: Date = .now) -> EightSleepFetchRequest {
