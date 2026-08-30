@@ -145,9 +145,9 @@ public enum HealthCoverageSummarizer {
           lastSampleEnd: samples.map(\.endDate).max() ?? key.nightDate
         )
       }
-      .sorted {
-        if $0.nightDate != $1.nightDate { return $0.nightDate > $1.nightDate }
-        return $0.source.name.localizedCaseInsensitiveCompare($1.source.name) == .orderedAscending
+      .sorted { (lhs: HealthNightCoverage, rhs: HealthNightCoverage) in
+        if lhs.nightDate != rhs.nightDate { return lhs.nightDate > rhs.nightDate }
+        return lhs.source.name.localizedCaseInsensitiveCompare(rhs.source.name) == .orderedAscending
       }
 
       let sourceGroups = Dictionary(grouping: metricRecords, by: \.source)
@@ -162,8 +162,8 @@ public enum HealthCoverageSummarizer {
           lastSampleEnd: samples.map(\.endDate).max() ?? .distantPast
         )
       }
-      .sorted {
-        $0.source.name.localizedCaseInsensitiveCompare($1.source.name) == .orderedAscending
+      .sorted { (lhs: HealthSourceCoverage, rhs: HealthSourceCoverage) in
+        lhs.source.name.localizedCaseInsensitiveCompare(rhs.source.name) == .orderedAscending
       }
 
       return HealthMetricCoverage(metric: metric, sources: sources, nights: nights)
