@@ -483,9 +483,9 @@ duplicate resting-heart-rate imports.
 
 ```text
 NSHealthUpdateUsageDescription
-Sleep Relay writes only an Eight Sleep reported resting-heart-rate sample after
-you review and confirm it. It never writes Eight HRV as Apple Health SDNN or
-changes another app's samples.
+Sleep Relay writes only Eight Sleep reported resting-heart-rate samples after
+you approve an individual import or history backfill. It never writes Eight HRV
+as Apple Health SDNN or changes another app's samples.
 ```
 
 HealthKit checks and real-source behavior must ultimately be tested on an
@@ -581,8 +581,8 @@ derived RHR Lab remains disabled for HealthKit writes.
   credentials, tokens, raw identifiers, exact timestamps, and raw payload data.
 - [x] Document and implement the current password-grant and V2 trends request
   shape behind a provider protocol.
-- [x] Keep the password and short-lived token in memory only for the prototype;
-  revisit optional Keychain persistence only after the read flow is validated.
+- [x] Store the login in a device-only Keychain item after live read validation;
+  keep the short-lived access token in memory and delete the login on disconnect.
 - [x] Implement recent completed-night trend retrieval.
 - [x] Implement best-effort, read-only interval retrieval for session IDs from
   the trends response; sanitize the response into field names, matched scalar
@@ -590,8 +590,8 @@ derived RHR Lab remains disabled for HealthKit writes.
 - [x] Handle token expiry, rate-limit errors, schema failures, and disconnect.
 - [ ] Confirm whether raw beat intervals exist.
 
-Exit criterion: the app retrieves the user's completed night without storing a
-password or exposing credentials in code/logs.
+Exit criterion: the app retrieves the user's completed night without exposing
+credentials in code/logs; saved login material remains in device-only Keychain.
 
 ### Milestone 6 — guarded RHR write
 
@@ -601,6 +601,10 @@ password or exposing credentials in code/logs.
 - [x] Query it back and display the resulting sync state.
 - [ ] Sync the same session twice and prove only one logical sample remains.
 - [x] Add a user-initiated deletion path limited to app-written records.
+- [x] Add a full-history audit/backfill that writes only `.ready` reported-RHR
+  candidates and skips visible Eight, Sleep Relay, and other-source nights.
+- [x] Add foreground auto-sync after permission is already granted, with a
+  once-per-sleep-day refresh policy rather than an hourly timer.
 
 Core policy tests, the app build, and fixture UI import/remove flows pass. The
 remaining proof is an on-iPhone write, Health app readback, and repeat sync.
@@ -694,7 +698,7 @@ The first public build is ready only when:
 - RMSSD can never enter the SDNN HealthKit path;
 - repeated syncs are idempotent;
 - permission ambiguity is represented honestly;
-- credentials remain in Keychain and no password is unnecessarily retained;
+- credentials remain in device-only Keychain only while saved login is enabled;
 - there is no Sleep Relay backend receiving health data;
 - all committed fixtures are synthetic or irreversibly sanitized;
 - core tests, app build, UI smoke test, and real-device HealthKit test pass;
@@ -728,16 +732,18 @@ Initial decisions:
 - **Accepted:** no app-operated backend for credentials or health data.
 - **Accepted:** XcodeGen generates the project, and the generated project is
   also committed for convenience.
-- **Accepted for prototype:** direct Eight credentials and the access token are
-  memory-only; no password or token persistence.
+- **Accepted after live validation:** direct Eight credentials are stored only
+  in device-bound Apple Keychain for automatic login; access tokens remain
+  memory-only, and disconnect deletes the Keychain item.
 - **Validated for prototype:** live read-only authentication and recent V2
   trend retrieval work in Simulator; three available nights were displayed.
 - **Validated for three nights:** `sleepQualityScore.heartRate.current` matched
   the Eight app RHR exactly; `heartRate.average` did not represent that value.
 - **Observed in Apple Health:** Google Health exported RHR but no visible HRV
   SDNN samples. Fitbit/Google's documented HRV metric is RMSSD, not SDNN.
-- **Accepted for MVP:** write the direct Eight-reported RHR only after explicit
-  review; warn about other visible sources and never modify their samples.
+- **Accepted for MVP:** write the direct Eight-reported RHR after individual or
+  backfill review; future foreground auto-sync may add only source-empty nights,
+  while other visible sources are skipped and never modified.
 - **Accepted for validation:** the app shares only a sanitized trends summary;
   user credentials and raw responses are never requested in chat.
 - **Accepted for prototype:** iOS 17 minimum deployment target.

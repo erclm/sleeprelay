@@ -37,7 +37,7 @@ struct SleepNightDetailView: View {
 
       Section {
         Label(
-          "Only a confirmed RHR import can write to Apple Health. All other metrics remain read-only.",
+          "Only Eight's reported RHR can write to Apple Health. All other metrics remain read-only, including HRV.",
           systemImage: "hand.raised"
         )
         .font(.footnote)

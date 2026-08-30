@@ -16,10 +16,10 @@ struct ConnectionView: View {
   var body: some View {
     Form {
       Section {
-        Label("Eight Sleep read-only connection", systemImage: "eye")
+        Label("Eight Sleep connection", systemImage: "link")
           .font(.headline)
         Text(
-          "Sleep Relay fetches recent sleep data without changing Eight Sleep. Apple Health RHR imports are reviewed and confirmed separately on each night."
+          "Sleep Relay reads your sleep data without changing Eight Sleep. Your login is saved in Apple Keychain so new nights can refresh automatically."
         )
         .font(.subheadline)
         .foregroundStyle(.secondary)
@@ -46,10 +46,19 @@ struct ConnectionView: View {
 
       Section("Credential handling") {
         Text(
-          "Your email and password are sent directly to Eight Sleep for this session. Sleep Relay does not save them. The short-lived access token stays only in memory and disappears when the app closes or you disconnect."
+          "Your email and password are sent directly to Eight Sleep and stored only in Apple Keychain on this iPhone. Sleep Relay has no account server. Disconnecting deletes the saved login."
         )
         .font(.footnote)
         .foregroundStyle(.secondary)
+
+        if model.hasSavedCredentials {
+          Label("Login saved in Apple Keychain", systemImage: "key.fill")
+            .foregroundStyle(.green)
+        }
+        if let message = model.credentialMessage {
+          Label(message, systemImage: "exclamationmark.triangle")
+            .foregroundStyle(.orange)
+        }
       }
 
       Section("API status") {
@@ -61,6 +70,14 @@ struct ConnectionView: View {
       }
     }
     .navigationTitle("Sleep Relay")
+    .task {
+      if email.isEmpty, let savedEmail = model.savedEmail {
+        email = savedEmail
+      }
+    }
+    .onChange(of: model.savedEmail) { _, savedEmail in
+      if email.isEmpty, let savedEmail { email = savedEmail }
+    }
   }
 
   @ViewBuilder
@@ -72,11 +89,11 @@ struct ConnectionView: View {
         Text("Connecting…")
       }
     case .connected:
-      Button("Disconnect", role: .destructive) {
+      Button("Disconnect and Forget Login", role: .destructive) {
         Task { await model.disconnect() }
       }
     case .disconnected, .failed:
-      Button("Connect read-only") {
+      Button("Connect and Save Login") {
         let submittedPassword = password
         password = ""
         focusedField = nil
@@ -101,7 +118,7 @@ struct ConnectionView: View {
       EmptyView()
     case .connected(let lastUpdated):
       Section("Session") {
-        Label("Connected read-only", systemImage: "checkmark.shield")
+        Label("Connected", systemImage: "checkmark.shield")
           .foregroundStyle(.green)
         LabeledContent(
           "Fetched", value: lastUpdated.formatted(date: .abbreviated, time: .shortened))

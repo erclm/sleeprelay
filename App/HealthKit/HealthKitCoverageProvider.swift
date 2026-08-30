@@ -5,6 +5,7 @@ import SleepRelayCore
 enum HealthKitCoverageError: LocalizedError {
   case unavailable
   case invalidRestingHeartRateCandidate
+  case restingHeartRateWriteDenied
 
   var errorDescription: String? {
     switch self {
@@ -12,6 +13,8 @@ enum HealthKitCoverageError: LocalizedError {
       "Health data is not available on this device."
     case .invalidRestingHeartRateCandidate:
       "The Eight Sleep resting-heart-rate sample is invalid and was not written."
+    case .restingHeartRateWriteDenied:
+      "Apple Health write access for Resting Heart Rate is off. Enable it in Settings, Health, Data Access & Devices, Sleep Relay."
     }
   }
 }
@@ -23,6 +26,14 @@ final class HealthKitCoverageProvider: HealthCoverageProviding {
   var isHealthDataAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
   var sleepRelayBundleIdentifier: String {
     Bundle.main.bundleIdentifier ?? "app.sleeprelay.ios"
+  }
+  var restingHeartRateWriteAuthorizationStatus: HealthWriteAuthorizationStatus {
+    switch healthStore.authorizationStatus(for: Self.restingHeartRateType) {
+    case .notDetermined: .notDetermined
+    case .sharingDenied: .denied
+    case .sharingAuthorized: .authorized
+    @unknown default: .denied
+    }
   }
 
   init(healthStore: HKHealthStore = HKHealthStore()) {
@@ -82,6 +93,9 @@ final class HealthKitCoverageProvider: HealthCoverageProviding {
       toShare: [Self.restingHeartRateType],
       read: [Self.restingHeartRateType]
     )
+    guard restingHeartRateWriteAuthorizationStatus == .authorized else {
+      throw HealthKitCoverageError.restingHeartRateWriteDenied
+    }
   }
 
   func fetchRestingHeartRateSamples(

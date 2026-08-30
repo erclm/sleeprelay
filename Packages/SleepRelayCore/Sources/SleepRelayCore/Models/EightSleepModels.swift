@@ -1,6 +1,6 @@
 import Foundation
 
-public struct EightSleepCredentials: Sendable {
+public struct EightSleepCredentials: Codable, Equatable, Sendable {
   public let email: String
   public let password: String
 
@@ -14,11 +14,18 @@ public struct EightSleepFetchRequest: Equatable, Sendable {
   public let from: String
   public let to: String
   public let timeZoneIdentifier: String
+  public let includeIntervalProbes: Bool
 
-  public init(from: String, to: String, timeZoneIdentifier: String) {
+  public init(
+    from: String,
+    to: String,
+    timeZoneIdentifier: String,
+    includeIntervalProbes: Bool = true
+  ) {
     self.from = from
     self.to = to
     self.timeZoneIdentifier = timeZoneIdentifier
+    self.includeIntervalProbes = includeIntervalProbes
   }
 }
 
