@@ -24,6 +24,14 @@ struct AppView: View {
       .tabItem { Label("Health", systemImage: "heart.text.square") }
       .tag(AppTab.health)
 
+      #if INTERNAL_TOOLS
+        NavigationStack {
+          DeveloperView(model: model)
+        }
+        .tabItem { Label("Developer", systemImage: "hammer") }
+        .tag(AppTab.developer)
+      #endif
+
       NavigationStack {
         AboutView()
       }

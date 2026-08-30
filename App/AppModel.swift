@@ -6,6 +6,9 @@ enum AppTab: Hashable {
   case connect
   case data
   case health
+  #if INTERNAL_TOOLS
+    case developer
+  #endif
   case about
 }
 

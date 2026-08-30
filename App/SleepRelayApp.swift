@@ -7,7 +7,7 @@ struct SleepRelayApp: App {
   @State private var healthModel: HealthCoverageModel
 
   init() {
-    #if DEBUG
+    #if DEBUG || INTERNAL_TOOLS
       if ProcessInfo.processInfo.arguments.contains("-validateHealthKitSampleConstruction") {
         guard
           let night = FixtureEightSleepProvider.snapshot.nights.first,

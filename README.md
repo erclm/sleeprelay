@@ -5,12 +5,12 @@ Health. Simple, private, and transparent.
 
 ## Current status
 
-Sleep Relay is an early, manually controlled prototype. It can:
+Sleep Relay is an early, explicitly controlled prototype. It can:
 
 - authenticate directly with Eight Sleep's unofficial cloud API;
 - fetch the most recent seven nights from the V2 trends endpoint;
-- display known sleep metrics, available response fields, and embedded
-  time-series names and sample counts;
+- display known sleep metrics in the normal app while keeping response fields,
+  endpoint probes, and time-series summaries in an Internal-only Developer tab;
 - decode Eight's nightly reported resting heart rate separately from its
   differently defined heart-rate average field;
 - discover heart-, HRV-, respiratory-, and RHR-related numeric field paths
@@ -73,6 +73,12 @@ cd Packages/SleepRelayCore
 swift test
 ```
 
+Run the same core tests and Release/Internal simulator builds used by CI:
+
+```bash
+Scripts/ci.sh
+```
+
 The project builds without an Eight Sleep client configuration, but live login
 is disabled in that state. For local live testing, copy
 `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and provide an
@@ -107,25 +113,27 @@ permission is requested only from the separate RHR confirmation flow.
 ## TestFlight
 
 The App Store Connect record and private `Sleep Relay Internal` group were
-created on 2026-08-29. Version 0.1.0 build 1 was uploaded, passed processing,
-and was assigned to the account holder through automatic internal
-distribution. Build 5 fixes Health authorization presentation and ensures the
-RHR sample metadata uses the value types required by HealthKit.
+created on 2026-08-29. Version 0.1.0 build 5 passed processing and internal
+distribution. It fixes Health authorization presentation and ensures the RHR
+sample metadata uses the value types required by HealthKit.
 
 On the iPhone, install Apple's TestFlight app, accept the Sleep Relay invitation
 for the same Apple Account, and install the available build. The installed
-build can be used away from the Mac. New builds still have to be uploaded from
-the Mac or a future CI service.
+build can be used away from the Mac. A push to the protected `nightly` branch
+runs CI and uploads an Internal-only build from a GitHub-hosted Xcode 27 runner.
+Release-candidate uploads are manually dispatched from `main`.
 
-For each subsequent upload, increment `CURRENT_PROJECT_VERSION` in
+For a local Internal-only upload, increment `CURRENT_PROJECT_VERSION` in
 `project.yml`, regenerate the project, and run:
 
 ```bash
-Scripts/upload-testflight.sh
+Scripts/upload-testflight.sh --channel internal
 ```
 
-The script runs the core tests, creates an App Store archive, and uploads it to
-App Store Connect. `ITSAppUsesNonExemptEncryption` is false because Sleep Relay
+Use `--channel release` only from a tested `main` checkout. The script refuses
+dirty working trees by default, runs the core tests, creates an App Store
+archive, and uploads it to App Store Connect. `ITSAppUsesNonExemptEncryption`
+is false because Sleep Relay
 implements no encryption algorithms itself; HTTPS is supplied by Apple's
 networking stack.
 
@@ -157,6 +165,9 @@ ASC_BUNDLE_ID=app.sleeprelay.ios
 
 The script then generates temporary manual-signing export options without
 putting account-specific signing identifiers or credentials in the repository.
+
+See [RELEASING.md](RELEASING.md) for branch promotion, CI credentials,
+TestFlight channels, and release tagging.
 
 ## Project direction
 

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sleep Relay</string>
+	<string>$(APP_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -30,6 +30,10 @@
 	<string>Sleep Relay reads selected sleep and heart metrics to identify gaps, show existing sources, and avoid duplicate resting-heart-rate imports.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Sleep Relay writes only an Eight Sleep reported resting-heart-rate sample after you review and confirm it. It never writes Eight HRV as Apple Health SDNN or changes another app's samples.</string>
+	<key>SleepRelayBuildChannel</key>
+	<string>$(SLEEP_RELAY_BUILD_CHANNEL)</string>
+	<key>SleepRelayGitCommit</key>
+	<string>$(SLEEP_RELAY_GIT_SHA)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
