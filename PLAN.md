@@ -255,7 +255,10 @@ heart-rate samples from `GET /v1/users/{id}/trends`. eightctl also implements
 the read-only `GET /v1/users/{id}/intervals/{sessionID}` path. No separate RHR
 endpoint or evidence that the intervals response contains raw NN/RR intervals
 was found. Sleep Relay now probes both verified GET paths, retains only
-sanitized field and series summaries, and does not guess additional paths.
+sanitized field names, value kinds, container counts, broad cadence buckets,
+and existing metric/series summaries, and does not guess additional paths. The
+Internal-only structure report omits the night date, all health values, exact
+timestamps/cadence, recognized identifiers, credentials, and response text.
 
 Phase C — on-device client:
 
@@ -577,16 +580,19 @@ derived RHR Lab remains disabled for HealthKit writes.
 - [ ] Capture and sanitize one real completed-session response.
 - [x] Validate read-only live login and recent-trend retrieval; the account
   returned three available nights on 2026-08-29. No real payload was saved.
-- [x] Add in-memory metric-path discovery and a sanitized report that excludes
-  credentials, tokens, raw identifiers, exact timestamps, and raw payload data.
+- [x] Add complete in-memory payload-shape discovery and a structure-only report
+  that excludes health values, credentials, tokens, recognized identifiers,
+  dates, exact timestamps, raw samples, and raw payload data, with an explicit
+  warning to inspect unknown private-schema field names before sharing.
 - [x] Document and implement the current password-grant and V2 trends request
   shape behind a provider protocol.
 - [x] Store the login in a device-only Keychain item after live read validation;
   keep the short-lived access token in memory and delete the login on disconnect.
 - [x] Implement recent completed-night trend retrieval.
 - [x] Implement best-effort, read-only interval retrieval for session IDs from
-  the trends response; sanitize the response into field names, matched scalar
-  metrics, and numeric series statistics rather than retaining raw JSON.
+  the trends response; sanitize the response into field names, JSON kinds,
+  counts, broad cadence buckets, matched scalar metrics, and numeric series
+  statistics rather than retaining raw JSON.
 - [x] Handle token expiry, rate-limit errors, schema failures, and disconnect.
 - [ ] Confirm whether raw beat intervals exist.
 

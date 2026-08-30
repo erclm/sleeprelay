@@ -3,11 +3,6 @@ import SwiftUI
 struct AboutView: View {
   let model: AppModel
 
-  #if INTERNAL_TOOLS
-    @State private var buildTapCount = 0
-    @State private var isDeveloperUnlocked = false
-  #endif
-
   var body: some View {
     List {
       Section("Current build") {
@@ -45,31 +40,8 @@ struct AboutView: View {
       }
 
       Section("App") {
-        #if INTERNAL_TOOLS
-          Button {
-            buildTapCount += 1
-            if buildTapCount >= 7 { isDeveloperUnlocked = true }
-          } label: {
-            buildRow
-          }
-          .buttonStyle(.plain)
-          .accessibilityLabel("Version \(version), build \(build)")
-        #else
-          buildRow
-        #endif
+        buildRow
       }
-
-      #if INTERNAL_TOOLS
-        if isDeveloperUnlocked {
-          Section("Internal") {
-            NavigationLink {
-              DeveloperView(model: model)
-            } label: {
-              Label("Diagnostics", systemImage: "wrench.and.screwdriver")
-            }
-          }
-        }
-      #endif
     }
     .navigationTitle("About")
   }

@@ -79,18 +79,114 @@ extension Dictionary where Key == String, Value == JSONValue {
   }
 }
 
-func sanitizedFieldKey(_ key: String) -> String {
-  let lowercased = key.lowercased()
+func sanitizedFieldKey(
+  _ key: String,
+  redacting identifiers: Set<String> = []
+) -> String {
+  let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+  let isLongHexIdentifier = trimmed.count >= 16 && trimmed.allSatisfy(\.isHexDigit)
+  let isUUID = UUID(uuidString: trimmed) != nil
+  let isKnownIdentifier = identifiers.contains(trimmed)
+  let isDateOrTimestamp =
+    trimmed.range(
+      of: #"^\d{4}-\d{2}-\d{2}(?:[Tt ][^\s]*)?$"#,
+      options: .regularExpression
+    ) != nil
+    || trimmed.range(
+      of: #"^(?:\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})$"#,
+      options: .regularExpression
+    ) != nil
+  let isTimeOnly =
+    trimmed.range(
+      of: #"^\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$"#,
+      options: .regularExpression
+    ) != nil
+  let isNumericKey =
+    !trimmed.isEmpty
+    && trimmed.allSatisfy { $0.isNumber || $0 == "." || $0 == "-" || $0 == "+" }
+    && Double(trimmed) != nil
+  let isHighEntropyIdentifier =
+    trimmed.count >= 20
+    && trimmed.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
+    && trimmed.filter(\.isNumber).count >= 4
+  let isLongOpaqueKey =
+    trimmed.count >= 32
+    && !trimmed.contains(where: \.isWhitespace)
+  let isShortMixedOpaqueKey =
+    trimmed.count >= 8
+    && (trimmed.contains("_") || trimmed.contains("-"))
+    && trimmed.filter(\.isNumber).count >= 2
+    && trimmed.contains(where: \.isLetter)
+  let isMeasurementValueKey =
+    trimmed.range(
+      of: #"^(?:bpm|hr|hrv|rmssd|sdnn|rr|ibi|spo2|temp|temperature|respiratory)[^\d]*\d+(?:\.\d+)?$"#,
+      options: [.regularExpression, .caseInsensitive]
+    ) != nil
   let identifierPrefixes = ["user-", "session-", "device-", "account-"]
-  let isLongHexIdentifier = key.count >= 16 && key.allSatisfy(\.isHexDigit)
-  let isUUID = UUID(uuidString: key) != nil
+  let schemaSuffixWords: Set<String> = [
+    "configuration", "config", "count", "data", "date", "details", "duration", "end",
+    "firmware", "hardware", "metrics", "model", "name", "profile", "settings", "source",
+    "start", "status", "summary", "temperature", "time", "timezone", "type", "version",
+  ]
+  let lowercased = trimmed.lowercased()
+  let isIdentifierPrefixedKey = identifierPrefixes.contains { prefix in
+    guard lowercased.hasPrefix(prefix) else { return false }
+    let suffix = String(lowercased.dropFirst(prefix.count))
+    let words = suffix.split(separator: "-").map(String.init)
+    let isSchemaSuffix = !words.isEmpty && words.allSatisfy { word in
+      schemaSuffixWords.contains(word)
+        || word.range(of: #"^v\d+$"#, options: .regularExpression) != nil
+    }
+    return !isSchemaSuffix
+  }
 
-  if key.contains("@")
+  if trimmed.isEmpty {
+    return "{empty-field}"
+  }
+
+  if isDateOrTimestamp || isTimeOnly {
+    return "{timestamp}"
+  }
+
+  if isNumericKey {
+    return "{index}"
+  }
+
+  if isMeasurementValueKey {
+    return "{value-key}"
+  }
+
+  if trimmed.contains("@")
     || isLongHexIdentifier
     || isUUID
-    || identifierPrefixes.contains(where: lowercased.hasPrefix)
+    || isKnownIdentifier
+    || isHighEntropyIdentifier
+    || isLongOpaqueKey
+    || isShortMixedOpaqueKey
+    || isIdentifierPrefixedKey
   {
     return "{identifier}"
   }
-  return key
+
+  let scalars = trimmed.unicodeScalars.map { scalar -> String in
+    if CharacterSet.controlCharacters.contains(scalar)
+      || CharacterSet.newlines.contains(scalar)
+      || CharacterSet.illegalCharacters.contains(scalar)
+      || scalar.properties.generalCategory == .format
+    {
+      return "?"
+    }
+    switch scalar {
+    case ".": return #"\."#
+    case "[": return #"\["#
+    case "]": return #"\]"#
+    case "\\": return #"\\"#
+    case "$": return #"\$"#
+    case "|": return #"\|"#
+    case "{": return #"\{"#
+    case "}": return #"\}"#
+    default: return String(scalar)
+    }
+  }
+  return scalars.joined()
 }

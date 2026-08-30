@@ -234,7 +234,11 @@ public actor EightSleepHTTPClient: EightSleepProviding {
       throw EightSleepAPIError.server(statusCode: response.statusCode)
     }
 
-    var nights = try EightSleepPayloadDecoder.decodeTrends(data)
+    var nights = try EightSleepPayloadDecoder.decodeTrends(
+      data,
+      redacting: [session.userID],
+      includePayloadShapeDiagnostics: request.includePayloadShapeDiagnostics
+    )
     guard request.includeIntervalProbes else {
       return EightSleepSnapshot(fetchedAt: Date(), nights: nights)
     }
@@ -244,7 +248,9 @@ public actor EightSleepHTTPClient: EightSleepProviding {
       do {
         let result = try await fetchIntervalProbe(
           sessionID: sessionID,
-          session: session
+          session: session,
+          additionalRedactions: [nights[index].id, nights[index].day],
+          includePayloadShapeDiagnostics: request.includePayloadShapeDiagnostics
         )
         nights[index].intervalProbe = result.probe
         if result.shouldStop {
@@ -262,7 +268,9 @@ public actor EightSleepHTTPClient: EightSleepProviding {
 
   private func fetchIntervalProbe(
     sessionID: String,
-    session: Session
+    session: Session,
+    additionalRedactions: Set<String>,
+    includePayloadShapeDiagnostics: Bool
   ) async throws -> (probe: EightSleepIntervalProbe, shouldStop: Bool) {
     let url = configuration.clientAPIBaseURL
       .appendingPathComponent("users")
@@ -280,7 +288,14 @@ public actor EightSleepHTTPClient: EightSleepProviding {
     switch response.statusCode {
     case 200..<300:
       do {
-        return (try EightSleepIntervalProbeDecoder.decode(data), false)
+        return (
+          try EightSleepIntervalProbeDecoder.decode(
+            data,
+            redacting: Set([session.userID, sessionID]).union(additionalRedactions),
+            includePayloadShapeDiagnostics: includePayloadShapeDiagnostics
+          ),
+          false
+        )
       } catch {
         return (.unavailable("Unexpected response shape"), true)
       }

@@ -30,6 +30,14 @@ struct AppView: View {
       }
       .tabItem { Label("About", systemImage: "info.circle") }
       .tag(AppTab.about)
+
+      #if INTERNAL_TOOLS
+        NavigationStack {
+          DeveloperView(model: model)
+        }
+        .tabItem { Label("Developer", systemImage: "wrench.and.screwdriver") }
+        .tag(AppTab.developer)
+      #endif
     }
     .task {
       await model.refreshForLifecycleIfNeeded()

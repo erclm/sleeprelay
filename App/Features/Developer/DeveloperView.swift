@@ -1,6 +1,7 @@
 #if INTERNAL_TOOLS
   import SleepRelayCore
   import SwiftUI
+  import UIKit
 
   struct DeveloperView: View {
     let model: AppModel
@@ -35,12 +36,12 @@
           } else {
             ForEach(model.nights) { night in
               NavigationLink {
-                DeveloperNightDetailView(night: night)
+                DeveloperNightDetailView(model: model, initialNight: night)
               } label: {
                 VStack(alignment: .leading, spacing: 4) {
                   Text(night.day)
                     .font(.headline)
-                  Text("RHR lab, API fields, probes, and time-series summaries")
+                  Text("Copy-safe payload shapes, RHR lab, probes, and series summaries")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
@@ -51,7 +52,7 @@
 
         Section {
           Label(
-            "Diagnostics are sanitized and cannot write to Apple Health.",
+            "Payload structure reports are sanitized. All Developer diagnostics are read-only.",
             systemImage: "hand.raised"
           )
           .font(.footnote)
@@ -59,6 +60,9 @@
         }
       }
       .navigationTitle("Developer")
+      .refreshable {
+        await model.refresh()
+      }
     }
 
     private var connectionLabel: String {
@@ -84,8 +88,17 @@
   }
 
   private struct DeveloperNightDetailView: View {
-    let night: EightSleepNight
+    let model: AppModel
+    let initialNight: EightSleepNight
     @State private var officialEightRHR = ""
+    @State private var copiedStructureReport: String?
+    @State private var structureCopyCount = 0
+
+    private var night: EightSleepNight {
+      model.nights.first(where: { $0.id == initialNight.id })
+        ?? model.nights.first(where: { $0.day == initialNight.day })
+        ?? initialNight
+    }
 
     private var analysis: RestingHeartRateLabAnalysis {
       RestingHeartRateLab.analyze(night)
@@ -102,8 +115,77 @@
       )
     }
 
+    private var structureReport: String {
+      EightSleepDiagnosticReport.sanitizedStructureReport(for: night)
+    }
+
+    private var intervalStructureStatus: String {
+      if let probe = night.intervalProbe {
+        switch probe.status {
+        case .available:
+          return probe.pathSummaries.isEmpty ? "Not captured in this refresh" : "Available"
+        case .unavailable:
+          return probe.status.label
+        }
+      }
+      return night.latestSessionID == nil
+        ? "Not requested: no session reference"
+        : "Not included in this refresh"
+    }
+
+    private var trendsStructureStatus: String {
+      night.trendsPathSummaries.isEmpty ? "Not captured in this refresh" : "Available"
+    }
+
     var body: some View {
       List {
+        Section("Value-free payload audit") {
+          Button {
+            UIPasteboard.general.string = structureReport
+            copiedStructureReport = structureReport
+            structureCopyCount += 1
+            AccessibilityNotification.Announcement("Sanitized structure copied").post()
+          } label: {
+            Label(
+              copiedStructureReport == structureReport
+                ? "Sanitized structure copied"
+                : "Copy sanitized structure",
+              systemImage: copiedStructureReport == structureReport ? "checkmark" : "doc.on.doc"
+            )
+          }
+          .accessibilityIdentifier("developer.payloadStructure.copy")
+          .accessibilityHint(
+            "Copies field names, JSON kinds, counts, and broad relative cadence without primitive response values."
+          )
+          .sensoryFeedback(.success, trigger: structureCopyCount)
+
+          ShareLink(
+            item: structureReport,
+            subject: Text("Sleep Relay sanitized payload structure"),
+            message: Text("Structure-only Eight Sleep diagnostics")
+          ) {
+            Label("Share sanitized structure", systemImage: "square.and.arrow.up")
+          }
+
+          Text(
+            "The copied report contains no primitive response values, night date, exact timestamps, exact cadence, raw samples, credentials, or response text. Recognized identifiers are redacted; inspect the remaining private-schema field names before sharing."
+          )
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+        }
+
+        PayloadStructureSection(
+          title: "Trends payload structure",
+          status: trendsStructureStatus,
+          summaries: night.trendsPathSummaries
+        )
+
+        PayloadStructureSection(
+          title: "Intervals payload structure",
+          status: intervalStructureStatus,
+          summaries: night.intervalProbe?.pathSummaries ?? []
+        )
+
         Section("Decoded values") {
           optionalMetric("Average sleeping HR", value: night.averageHeartRateBPM, suffix: " bpm")
           optionalMetric(
@@ -146,7 +228,10 @@
             subject: Text("Sleep Relay RHR Lab — \(night.day)"),
             message: Text("Sanitized Sleep Relay metric report")
           ) {
-            Label("Share sanitized report", systemImage: "square.and.arrow.up")
+            Label(
+              "Share RHR report (includes date and measurements)",
+              systemImage: "square.and.arrow.up"
+            )
           }
         }
 
@@ -196,7 +281,7 @@
               }
             }
           } else {
-            Text("Not requested because this night did not expose a session ID.")
+            Text(intervalStructureStatus)
               .foregroundStyle(.secondary)
           }
         }
@@ -227,6 +312,12 @@
       }
       .navigationTitle(night.day)
       .navigationBarTitleDisplayMode(.inline)
+      .refreshable {
+        await model.refresh()
+      }
+      .onChange(of: structureReport) { _, _ in
+        copiedStructureReport = nil
+      }
     }
 
     @ViewBuilder
@@ -244,6 +335,53 @@
 
     private func format(_ value: Double) -> String {
       value.formatted(.number.precision(.fractionLength(0...2)))
+    }
+  }
+
+  private struct PayloadStructureSection: View {
+    let title: String
+    let status: String
+    let summaries: [EightSleepProbePathSummary]
+
+    var body: some View {
+      Section(title) {
+        LabeledContent("Status", value: status)
+        LabeledContent("Sanitized paths", value: "\(summaries.count)")
+
+        if summaries.isEmpty {
+          Text(
+            "No structural paths were retained. Pull to refresh here; background refresh intentionally skips this audit."
+          )
+            .foregroundStyle(.secondary)
+        } else {
+          NavigationLink {
+            PayloadStructureListView(title: title, summaries: summaries)
+          } label: {
+            Label("Browse paths and shapes", systemImage: "list.bullet.rectangle")
+          }
+        }
+      }
+    }
+  }
+
+  private struct PayloadStructureListView: View {
+    let title: String
+    let summaries: [EightSleepProbePathSummary]
+
+    var body: some View {
+      List(summaries) { summary in
+        VStack(alignment: .leading, spacing: 5) {
+          Text(verbatim: summary.path)
+            .font(.system(.caption, design: .monospaced).weight(.semibold))
+          Text(EightSleepDiagnosticReport.summaryDescription(summary))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+        .textSelection(.enabled)
+      }
+      .navigationTitle(title)
+      .navigationBarTitleDisplayMode(.inline)
     }
   }
 

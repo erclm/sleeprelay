@@ -92,8 +92,62 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
               median: 56.5,
               maximum: 58
             )
+          ],
+          pathSummaries: [
+            EightSleepProbePathSummary(
+              path: "$",
+              kindCounts: [EightSleepProbeKindCount(kind: .object, count: 1)]
+            ),
+            EightSleepProbePathSummary(
+              path: "intervals",
+              kindCounts: [EightSleepProbeKindCount(kind: .array, count: 1)],
+              arrayInstanceCount: 1,
+              totalArrayElementCount: 4,
+              minimumArrayElementCount: 4,
+              maximumArrayElementCount: 4,
+              timestampObservationCount: 4,
+              cadenceGapCount: 3,
+              typicalCadenceBucket: .oneToTenMinutes
+            ),
+            EightSleepProbePathSummary(
+              path: "intervals[]",
+              kindCounts: [EightSleepProbeKindCount(kind: .object, count: 4)]
+            ),
+            EightSleepProbePathSummary(
+              path: "intervals[].heartRate",
+              kindCounts: [EightSleepProbeKindCount(kind: .number, count: 4)]
+            ),
           ]
-        )
+        ),
+        trendsPathSummaries: [
+          EightSleepProbePathSummary(
+            path: "$",
+            kindCounts: [EightSleepProbeKindCount(kind: .object, count: 1)]
+          ),
+          EightSleepProbePathSummary(
+            path: "sessions",
+            kindCounts: [EightSleepProbeKindCount(kind: .array, count: 1)],
+            arrayInstanceCount: 1,
+            totalArrayElementCount: 1,
+            minimumArrayElementCount: 1,
+            maximumArrayElementCount: 1
+          ),
+          EightSleepProbePathSummary(
+            path: "sessions[]",
+            kindCounts: [EightSleepProbeKindCount(kind: .object, count: 1)]
+          ),
+          EightSleepProbePathSummary(
+            path: "sessions[].timeseries.heartRate",
+            kindCounts: [EightSleepProbeKindCount(kind: .array, count: 1)],
+            arrayInstanceCount: 1,
+            totalArrayElementCount: 92,
+            minimumArrayElementCount: 92,
+            maximumArrayElementCount: 92,
+            timestampObservationCount: 92,
+            cadenceGapCount: 91,
+            typicalCadenceBucket: .oneToTenMinutes
+          ),
+        ]
       )
     ]
   )

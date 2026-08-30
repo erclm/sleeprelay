@@ -10,18 +10,21 @@ Sleep Relay is an early, explicitly controlled prototype. It can:
 - authenticate directly with Eight Sleep's unofficial cloud API;
 - fetch the most recent seven nights from the V2 trends endpoint;
 - display known sleep metrics in the normal app while keeping response fields,
-  endpoint probes, and time-series summaries behind a hidden Internal-only
-  diagnostics unlock in About;
+  endpoint probes, and time-series summaries in an Internal-only Developer tab;
 - decode Eight's nightly reported resting heart rate separately from its
   differently defined heart-rate average field;
 - discover heart-, HRV-, respiratory-, and RHR-related numeric field paths
   without retaining a raw Eight response;
 - probe the currently documented read-only intervals endpoint and retain only
-  field names, matched scalar metrics, and numeric series statistics;
+  sanitized field names, JSON kinds, container counts, broad cadence buckets,
+  matched scalar metrics, and numeric series statistics;
 - run a versioned, research-only RHR lab over timestamped heart-rate samples and
   compare it with a value manually read from the Eight app;
-- share a sanitized text report that excludes credentials, tokens, account,
-  device, and session identifiers, exact timestamps, and raw payloads;
+- copy or share a structure-only diagnostic that excludes the night date,
+  health values, credentials, tokens, recognized account/device/session
+  identifiers, exact timestamps, raw samples, and raw payloads; the report asks
+  the user to inspect private-schema field names before sharing, and the existing
+  value-bearing RHR research report remains a separate action;
 - request read-only Apple Health access for sleep analysis, heart rate,
   respiratory rate, resting heart rate, and HRV SDNN;
 - group visible Apple Health samples by metric, sleep night, and source so gaps
