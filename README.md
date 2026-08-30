@@ -129,6 +129,21 @@ App Store Connect. `ITSAppUsesNonExemptEncryption` is false because Sleep Relay
 implements no encryption algorithms itself; HTTPS is supplied by Apple's
 networking stack.
 
+For non-interactive App Store Connect authentication, create the ignored local
+file `Config/AppStoreConnect.local.env` with these three variables:
+
+```bash
+ASC_KEY_ID=YOUR_KEY_ID
+ASC_ISSUER_ID=YOUR_ISSUER_ID
+ASC_KEY_PATH=/absolute/path/to/AuthKey_YOUR_KEY_ID.p8
+```
+
+Keep the `.p8` outside the repository with file mode `600`. The API key handles
+App Store Connect authentication, but a TestFlight export still requires an
+Apple Distribution signing certificate. Xcode can cloud-sign when its Apple
+Account has access, while CI needs a distribution certificate and provisioning
+profile supplied through protected secrets.
+
 ## Project direction
 
 See [PLAN.md](PLAN.md) for the metric policy, privacy model, architecture,
