@@ -56,14 +56,14 @@ unofficial and may stop working when its private endpoints change.
 Requirements:
 
 - Apple silicon Mac
-- Xcode 27 beta with the iOS 27 SDK
+- Xcode 26.6 or later (use the latest App Store-supported stable or RC build)
 - XcodeGen 2.46 or later
 
 Generate the project:
 
 ```bash
 xcodegen generate
-open -a /Applications/Xcode-beta.app SleepRelay.xcodeproj
+open -a /Applications/Xcode.app SleepRelay.xcodeproj
 ```
 
 Run the pure Swift tests:
@@ -120,7 +120,7 @@ sample metadata uses the value types required by HealthKit.
 On the iPhone, install Apple's TestFlight app, accept the Sleep Relay invitation
 for the same Apple Account, and install the available build. The installed
 build can be used away from the Mac. A push to the protected `nightly` branch
-runs CI and uploads an Internal-only build from a GitHub-hosted Xcode 27 runner.
+runs CI and uploads an Internal-only build from a GitHub-hosted Xcode 26.6 runner.
 Release-candidate uploads are manually dispatched from `main`.
 
 For a local Internal-only upload, increment `CURRENT_PROJECT_VERSION` in
