@@ -3,8 +3,8 @@
 set -euo pipefail
 
 repo_root="${0:A:h:h}"
-if [[ -z "${DEVELOPER_DIR:-}" && -d /Applications/Xcode-beta.app/Contents/Developer ]]; then
-  export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+if [[ -z "${DEVELOPER_DIR:-}" && -d /Applications/Xcode.app/Contents/Developer ]]; then
+  export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 fi
 
 cd "${repo_root}"
