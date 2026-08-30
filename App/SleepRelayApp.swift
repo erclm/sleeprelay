@@ -23,6 +23,19 @@ struct SleepRelayApp: App {
         }
       }
 
+      #if INTERNAL_TOOLS
+        if ProcessInfo.processInfo.arguments.contains("-validateLivePiezoProbeParser") {
+          Task {
+            let validationPassed = await LivePiezoProbeValidation.run()
+            precondition(
+              validationPassed,
+              "The Internal live piezo parser/report validation failed."
+            )
+            print("SLEEP_RELAY_LIVE_PIEZO_VALID")
+          }
+        }
+      #endif
+
       if ProcessInfo.processInfo.arguments.contains("-useFixtures") {
         _model = State(initialValue: .preview)
         _healthModel = State(initialValue: .preview)

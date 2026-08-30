@@ -594,7 +594,14 @@ derived RHR Lab remains disabled for HealthKit writes.
   counts, broad cadence buckets, matched scalar metrics, and numeric series
   statistics rather than retaining raw JSON.
 - [x] Handle token expiry, rate-limit errors, schema failures, and disconnect.
-- [ ] Confirm whether raw beat intervals exist.
+- [x] Confirm that the current trends and intervals responses contain processed
+  HRV/RMSSD series rather than raw beat intervals.
+- [x] Add an Internal-only, foreground, aggregate-only probe for the private
+  authenticated live piezo stream found in Eight Sleep's Android app. It does
+  not retain response text, sensor values, identifiers, or absolute timestamps.
+- [ ] Determine on the user's Pod whether live piezo sample blocks are available,
+  continuous, timed precisely enough for beat recovery, and present outside the
+  onboarding test-drive flow.
 
 Exit criterion: the app retrieves the user's completed night without exposing
 credentials in code/logs; saved login material remains in device-only Keychain.
@@ -626,6 +633,8 @@ it.
 
 - [x] With aggregate RMSSD-only evidence, keep the HealthKit HRV writer unsupported
   and provide local display/export.
+- [x] Keep the live piezo experiment separate from HealthKit and expose only a
+  sanitized Nightly diagnostic until waveform semantics and timing are known.
 - [ ] If raw NN intervals exist, specify filtering, duration, minimum sample
   count, SDNN formula, validation data, and error handling.
 - [ ] Add reference-vector tests before exposing any SDNN write toggle.
@@ -750,6 +759,14 @@ Initial decisions:
   the Eight app RHR exactly; `heartRate.average` did not represent that value.
 - **Observed in Apple Health:** Google Health exported RHR but no visible HRV
   SDNN samples. Fitbit/Google's documented HRV metric is RMSSD, not SDNN.
+- **Validated by app reverse engineering:** Eight Sleep's Android Health Connect
+  writer exports `timeseries.rmssd` as RMSSD and contains no SDNN mapping. Its
+  private `/v1/devices/{device}/live` route exposes timestamped piezo sample
+  blocks, but not a declared sampling rate, per-sample timestamps, beat markers,
+  or RR/NN intervals.
+- **Accepted for research:** Nightly may make one explicit, bounded foreground
+  request to the private live stream and retain only value-free aggregate
+  diagnostics. It does not save a waveform or enable an HRV writer.
 - **Accepted for MVP:** write the direct Eight-reported RHR after individual or
   backfill review; future foreground auto-sync may add only source-empty nights,
   while other visible sources are skipped and never modified.
