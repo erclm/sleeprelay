@@ -73,6 +73,9 @@ final class AppModel {
   private var activeCredentials: EightSleepCredentials?
   private var didLoadCredentials = false
   private var isLifecycleRefreshInProgress = false
+  #if INTERNAL_TOOLS
+    private var livePiezoProbeConfiguration: EightSleepAPIConfiguration?
+  #endif
 
   private static let lastAutomaticRefreshKey = "app.sleeprelay.lastAutomaticRefreshSleepDay"
   private static let historyStartYear = 2015
@@ -104,12 +107,16 @@ final class AppModel {
   }
 
   static func live(configuration: AppConfiguration = .live()) -> AppModel {
-    AppModel(
+    let model = AppModel(
       provider: EightSleepHTTPClient(configuration: configuration.eightSleep),
       credentialStore: KeychainEightSleepCredentialStore(),
       backgroundRefreshScheduler: BackgroundRefreshScheduler(),
       isProviderConfigured: configuration.isEightSleepConfigured
     )
+    #if INTERNAL_TOOLS
+      model.livePiezoProbeConfiguration = configuration.eightSleep
+    #endif
+    return model
   }
 
   static var preview: AppModel {
@@ -298,6 +305,28 @@ final class AppModel {
       historyState = .failed(message: userFacingMessage(for: error))
     }
   }
+
+  #if INTERNAL_TOOLS
+    /// Runs a bounded, foreground-only diagnostic against Eight Sleep's private
+    /// live sensor stream. Credentials and identifiers stay scoped to this call;
+    /// only a value-free aggregate report is returned to the Developer UI.
+    func probeLivePiezo(for night: EightSleepNight) async throws -> LivePiezoProbeSummary {
+      loadSavedCredentialsIfNeeded()
+      guard let credentials = activeCredentials else {
+        throw LivePiezoProbeError.missingCredentials
+      }
+      guard let configuration = livePiezoProbeConfiguration,
+        configuration.isConfigured
+      else {
+        throw LivePiezoProbeError.missingConfiguration
+      }
+
+      return try await LivePiezoProbeClient(
+        configuration: configuration,
+        credentials: credentials
+      ).run(forSleepDay: night.day)
+    }
+  #endif
 
   func disconnect() async {
     await provider.disconnect()

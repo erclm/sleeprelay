@@ -18,6 +18,10 @@ Sleep Relay is an early, explicitly controlled prototype. It can:
 - probe the currently documented read-only intervals endpoint and retain only
   sanitized field names, JSON kinds, container counts, broad cadence buckets,
   matched scalar metrics, and numeric series statistics;
+- run an Internal-only, user-initiated 15-second probe of Eight Sleep's private
+  live sensor stream and retain only transport categories, event counts, sample
+  block sizes, and relative timing aggregates—not identifiers, timestamps,
+  response text, or sensor values;
 - run a versioned, research-only RHR lab over timestamped heart-rate samples and
   compare it with a value manually read from the Eight app;
 - copy or share a structure-only diagnostic that excludes the night date,
@@ -58,6 +62,14 @@ that reported value and does not derive the HealthKit write from the differently
 defined `heartRate.average` field or the experimental RHR Lab series. The
 intervals endpoint was also validated, but it exposed aggregate HRV series, not
 evidence of raw NN/RR beat intervals suitable for SDNN.
+
+Static analysis of Eight Sleep's Android app identified a separate authenticated
+live sensor endpoint whose piezo events contain timestamped arrays of floating-point
+samples. The app does not disclose their sampling rate, continuity, channel, or
+units, so Sleep Relay treats the endpoint only as a research lead. The Nightly
+probe does not retain the waveform, calculate HRV, or write Apple Health. A real
+SDNN path remains gated on recovering and independently validating genuine beat
+intervals.
 
 Eight Sleep does not publish a supported public API. This integration is
 unofficial and may stop working when its private endpoints change.
