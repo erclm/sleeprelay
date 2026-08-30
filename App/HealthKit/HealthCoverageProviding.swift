@@ -1,10 +1,17 @@
 import Foundation
 import SleepRelayCore
 
+enum HealthWriteAuthorizationStatus: Equatable {
+  case notDetermined
+  case denied
+  case authorized
+}
+
 @MainActor
 protocol HealthCoverageProviding {
   var isHealthDataAvailable: Bool { get }
   var sleepRelayBundleIdentifier: String { get }
+  var restingHeartRateWriteAuthorizationStatus: HealthWriteAuthorizationStatus { get }
 
   func requestReadAuthorization() async throws
   func fetchSamples(from startDate: Date, to endDate: Date) async throws

@@ -29,7 +29,7 @@
 	<key>NSHealthShareUsageDescription</key>
 	<string>Sleep Relay reads selected sleep and heart metrics to identify gaps, show existing sources, and avoid duplicate resting-heart-rate imports.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Sleep Relay writes only an Eight Sleep reported resting-heart-rate sample after you review and confirm it. It never writes Eight HRV as Apple Health SDNN or changes another app's samples.</string>
+	<string>Sleep Relay writes only Eight Sleep reported resting-heart-rate samples after you approve an individual import or history backfill. It never writes Eight HRV as Apple Health SDNN or changes another app's samples.</string>
 	<key>SleepRelayBuildChannel</key>
 	<string>$(SLEEP_RELAY_BUILD_CHANNEL)</string>
 	<key>SleepRelayGitCommit</key>

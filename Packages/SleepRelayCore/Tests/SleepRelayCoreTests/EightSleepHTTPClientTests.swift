@@ -146,4 +146,48 @@ struct EightSleepHTTPClientTests {
     #expect(requests[2].url?.path == "/v1/users/user-1/intervals/session-secret")
     #expect(requests[2].url?.query == nil)
   }
+
+  @Test
+  func historyRequestSkipsPerNightIntervalProbes() async throws {
+    let authURL = URL(string: "https://auth.example.test/v1/tokens")!
+    let baseURL = URL(string: "https://client.example.test/v1/")!
+    func response(_ url: URL) -> HTTPURLResponse {
+      HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    }
+    let transport = StubTransport(responses: [
+      (
+        Data(#"{"access_token":"short-lived","expires_in":3600,"userId":"user-1"}"#.utf8),
+        response(authURL)
+      ),
+      (
+        Data(
+          #"{"days":[{"day":"2026-08-28","sessions":[{"id":"session-secret","timeseries":{}}]}]}"#.utf8
+        ),
+        response(baseURL)
+      ),
+    ])
+    let client = EightSleepHTTPClient(
+      configuration: EightSleepAPIConfiguration(
+        clientID: "client",
+        clientSecret: "client-secret",
+        authURL: authURL,
+        clientAPIBaseURL: baseURL
+      ),
+      transport: transport
+    )
+
+    let snapshot = try await client.connect(
+      credentials: EightSleepCredentials(email: "person@example.test", password: "password"),
+      request: EightSleepFetchRequest(
+        from: "2025-01-01",
+        to: "2025-12-31",
+        timeZoneIdentifier: "UTC",
+        includeIntervalProbes: false
+      )
+    )
+
+    #expect(snapshot.nights.count == 1)
+    #expect(snapshot.nights.first?.intervalProbe == nil)
+    #expect(await transport.requests.count == 2)
+  }
 }

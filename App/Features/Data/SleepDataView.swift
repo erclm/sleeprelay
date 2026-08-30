@@ -12,7 +12,7 @@ struct SleepDataView: View {
           Label("No Eight Sleep data", systemImage: "bed.double")
         } description: {
           Text(
-            "Connect your account to fetch the last seven nights. Only an RHR import you explicitly confirm can write to Apple Health."
+            "Connect your account to fetch recent nights. Apple Health writes are limited to Eight's reported RHR through the reviewed backfill and auto-sync controls."
           )
         } actions: {
           Button("Go to Connect") {
@@ -20,9 +20,30 @@ struct SleepDataView: View {
           }
         }
       } else {
-        List(model.nights) { night in
-          NavigationLink(value: night) {
-            NightRow(night: night)
+        List {
+          Section("Apple Health") {
+            NavigationLink {
+              BackfillHistoryView(model: model, healthModel: healthModel)
+            } label: {
+              Label {
+                VStack(alignment: .leading, spacing: 3) {
+                  Text("Backfill History")
+                  Text("Audit all available nights and add only missing RHR")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+              } icon: {
+                Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+              }
+            }
+          }
+
+          Section("Recent Nights") {
+            ForEach(model.nights) { night in
+              NavigationLink(value: night) {
+                NightRow(night: night)
+              }
+            }
           }
         }
         .navigationDestination(for: EightSleepNight.self) { night in

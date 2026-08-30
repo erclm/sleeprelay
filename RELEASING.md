@@ -15,7 +15,8 @@ release are distribution states, not additional branches.
 1. Develop on a short-lived `elmcodex/*` branch.
 2. Open a pull request into `nightly`; CI must pass before merging.
 3. The push to `nightly` uploads a uniquely numbered, Internal-only TestFlight
-   build. Test the normal app and the Developer tab on a physical iPhone.
+   build. Test the normal app and the hidden diagnostics screen on a physical
+   iPhone (tap About's Version row seven times to reveal it).
 4. When the Nightly is accepted, open a pull request from `nightly` to `main`.
 5. From the TestFlight workflow on `main`, manually dispatch the `release`
    channel. This archive does not contain `INTERNAL_TOOLS` and is eligible for
@@ -37,7 +38,7 @@ Internal and Release uploads cannot select the same number. Local uploads use
 the value in `project.yml` unless `SLEEP_RELAY_BUILD_NUMBER` is supplied.
 
 Each archive also records its channel and Git commit in the app's Info.plist.
-Internal builds display these values in the Developer tab.
+Internal builds display these values in the hidden About diagnostics screen.
 
 ## CI workflows
 

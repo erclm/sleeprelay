@@ -5,16 +5,19 @@ import SleepRelayCore
 final class FixtureHealthCoverageProvider: HealthCoverageProviding {
   let isHealthDataAvailable: Bool
   let sleepRelayBundleIdentifier = "app.sleeprelay.ios"
+  var restingHeartRateWriteAuthorizationStatus: HealthWriteAuthorizationStatus
   private var samples: [HealthCoverageSampleRecord]
   private var restingHeartRateSamples: [RestingHeartRateHealthSample]
 
   init(
     isHealthDataAvailable: Bool = true,
+    restingHeartRateWriteAuthorizationStatus: HealthWriteAuthorizationStatus = .authorized,
     samples: [HealthCoverageSampleRecord] = FixtureHealthCoverageProvider.samples,
     restingHeartRateSamples: [RestingHeartRateHealthSample] =
       FixtureHealthCoverageProvider.restingHeartRateSamples
   ) {
     self.isHealthDataAvailable = isHealthDataAvailable
+    self.restingHeartRateWriteAuthorizationStatus = restingHeartRateWriteAuthorizationStatus
     self.samples = samples
     self.restingHeartRateSamples = restingHeartRateSamples
   }
