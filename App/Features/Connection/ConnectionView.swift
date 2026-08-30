@@ -60,14 +60,6 @@ struct ConnectionView: View {
             .foregroundStyle(.orange)
         }
       }
-
-      Section("API status") {
-        LabeledContent("Integration", value: "Unofficial")
-        LabeledContent(
-          "Local client config",
-          value: model.isProviderConfigured ? "Available" : "Missing"
-        )
-      }
     }
     .navigationTitle("Sleep Relay")
     .task {

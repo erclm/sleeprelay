@@ -24,7 +24,7 @@ struct BackfillHistoryView: View {
       Section("Ongoing sync") {
         Toggle("Auto-sync new missing RHR", isOn: $healthModel.isAutomaticSyncEnabled)
         Text(
-          "After Apple Health permission is granted, Sleep Relay checks when the app refreshes on a new local sleep day. There is no hourly timer."
+          "After Apple Health permission is granted, Sleep Relay can sync newly reported RHR during foreground or background refreshes."
         )
         .font(.footnote)
         .foregroundStyle(.secondary)

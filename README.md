@@ -31,7 +31,8 @@ Sleep Relay is an early, explicitly controlled prototype. It can:
   metadata, skip visible Eight/Sleep Relay duplicates, warn about other visible
   sources, and delete only Sleep Relay's own sample;
 - save the Eight login in device-only Apple Keychain, restore it at launch, and
-  refresh once per local sleep day when the app becomes active;
+  request a best-effort iOS background refresh after the sleep window while
+  retaining the foreground refresh when the app becomes active;
 - audit available Eight history from 2015 onward and backfill only RHR nights
   where no existing source is visible; and
 - label Eight Sleep HRV as RMSSD rather than incorrectly writing it as Apple
@@ -121,7 +122,7 @@ confirmation.
 ## TestFlight
 
 The App Store Connect record and private `Sleep Relay Internal` group were
-created on 2026-08-29. Version 0.1.0 build 7 passed the automated Nightly
+created on 2026-08-29. Version 0.1.0 build 8 passed the automated Nightly
 pipeline and entered internal testing. It uses the stable Xcode 26.6 release
 toolchain and was uploaded from the protected `nightly` branch.
 

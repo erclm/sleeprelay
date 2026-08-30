@@ -20,7 +20,15 @@ struct AboutView: View {
 
       Section("Automatic refresh") {
         Text(
-          "Sleep Relay restores your saved login and checks for a new night when the app becomes active on a new local sleep day. It does not poll every hour."
+          "With a saved login, Sleep Relay asks iOS to fetch new nights in the background after your sleep window and also checks when you open the app. iOS chooses when background refresh runs."
+        )
+      }
+
+      Section("API status") {
+        LabeledContent("Integration", value: "Unofficial")
+        LabeledContent(
+          "Local client config",
+          value: model.isProviderConfigured ? "Available" : "Missing"
         )
       }
 

@@ -43,5 +43,9 @@ struct SleepRelayApp: App {
     WindowGroup {
       AppView(model: model, healthModel: healthModel)
     }
+    .backgroundTask(.appRefresh(BackgroundRefreshScheduler.identifier)) {
+      guard await model.performScheduledBackgroundRefresh() else { return }
+      await healthModel.automaticSyncIfEligible(nights: model.nights)
+    }
   }
 }
