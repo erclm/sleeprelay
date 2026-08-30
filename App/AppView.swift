@@ -13,7 +13,7 @@ struct AppView: View {
       .tag(AppTab.connect)
 
       NavigationStack {
-        SleepDataView(model: model)
+        SleepDataView(model: model, healthModel: healthModel)
       }
       .tabItem { Label("Eight Data", systemImage: "bed.double") }
       .tag(AppTab.data)

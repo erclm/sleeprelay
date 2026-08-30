@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SleepDataView: View {
   let model: AppModel
+  let healthModel: HealthCoverageModel
 
   var body: some View {
     Group {
@@ -11,7 +12,7 @@ struct SleepDataView: View {
           Label("No Eight Sleep data", systemImage: "bed.double")
         } description: {
           Text(
-            "Connect your account to fetch the last seven nights. Nothing will be written to Apple Health."
+            "Connect your account to fetch the last seven nights. Only an RHR import you explicitly confirm can write to Apple Health."
           )
         } actions: {
           Button("Go to Connect") {
@@ -25,7 +26,7 @@ struct SleepDataView: View {
           }
         }
         .navigationDestination(for: EightSleepNight.self) { night in
-          SleepNightDetailView(night: night)
+          SleepNightDetailView(night: night, healthModel: healthModel)
         }
         .refreshable {
           await model.refresh()
@@ -79,6 +80,12 @@ private struct NightRow: View {
 }
 
 func durationText(_ seconds: Double) -> String {
-  let totalMinutes = max(Int(seconds) / 60, 0)
+  guard
+    seconds.isFinite,
+    seconds >= 0,
+    let totalMinutes = Int(exactly: (seconds / 60).rounded(.towardZero))
+  else {
+    return "Unavailable"
+  }
   return "\(totalMinutes / 60)h \(totalMinutes % 60)m"
 }

@@ -4,14 +4,19 @@ import SleepRelayCore
 @MainActor
 final class FixtureHealthCoverageProvider: HealthCoverageProviding {
   let isHealthDataAvailable: Bool
-  private let samples: [HealthCoverageSampleRecord]
+  let sleepRelayBundleIdentifier = "app.sleeprelay.ios"
+  private var samples: [HealthCoverageSampleRecord]
+  private var restingHeartRateSamples: [RestingHeartRateHealthSample]
 
   init(
     isHealthDataAvailable: Bool = true,
-    samples: [HealthCoverageSampleRecord] = FixtureHealthCoverageProvider.samples
+    samples: [HealthCoverageSampleRecord] = FixtureHealthCoverageProvider.samples,
+    restingHeartRateSamples: [RestingHeartRateHealthSample] =
+      FixtureHealthCoverageProvider.restingHeartRateSamples
   ) {
     self.isHealthDataAvailable = isHealthDataAvailable
     self.samples = samples
+    self.restingHeartRateSamples = restingHeartRateSamples
   }
 
   func requestReadAuthorization() async throws {}
@@ -20,6 +25,62 @@ final class FixtureHealthCoverageProvider: HealthCoverageProviding {
     -> [HealthCoverageSampleRecord]
   {
     samples.filter { $0.startDate >= startDate && $0.startDate < endDate }
+  }
+
+  func requestRestingHeartRateWriteAuthorization() async throws {}
+
+  func fetchRestingHeartRateSamples(
+    from startDate: Date,
+    to endDate: Date
+  ) async throws -> [RestingHeartRateHealthSample] {
+    restingHeartRateSamples.filter {
+      $0.startDate <= endDate && $0.endDate >= startDate
+    }
+  }
+
+  func saveRestingHeartRate(_ candidate: RestingHeartRateSyncCandidate) async throws {
+    let source = HealthDataSource(
+      name: "Sleep Relay",
+      bundleIdentifier: sleepRelayBundleIdentifier,
+      version: "Preview"
+    )
+    restingHeartRateSamples.append(
+      RestingHeartRateHealthSample(
+        source: source,
+        valueBPM: candidate.valueBPM,
+        startDate: candidate.endDate,
+        endDate: candidate.endDate,
+        syncIdentifier: candidate.syncIdentifier
+      )
+    )
+    samples.append(
+      HealthCoverageSampleRecord(
+        metric: .restingHeartRate,
+        source: source,
+        startDate: candidate.endDate,
+        endDate: candidate.endDate
+      )
+    )
+  }
+
+  func deleteRestingHeartRate(syncIdentifier: String) async throws {
+    let deletedDates = Set(
+      restingHeartRateSamples
+        .filter {
+          $0.source.bundleIdentifier == sleepRelayBundleIdentifier
+            && $0.syncIdentifier == syncIdentifier
+        }
+        .map(\.startDate)
+    )
+    restingHeartRateSamples.removeAll {
+      $0.source.bundleIdentifier == sleepRelayBundleIdentifier
+        && $0.syncIdentifier == syncIdentifier
+    }
+    samples.removeAll {
+      $0.metric == .restingHeartRate
+        && $0.source.bundleIdentifier == sleepRelayBundleIdentifier
+        && deletedDates.contains($0.startDate)
+    }
   }
 
   static let samples: [HealthCoverageSampleRecord] = {
@@ -68,4 +129,18 @@ final class FixtureHealthCoverageProvider: HealthCoverageProviding {
       ),
     ]
   }()
+
+  static let restingHeartRateSamples: [RestingHeartRateHealthSample] = [
+    RestingHeartRateHealthSample(
+      source: HealthDataSource(
+        name: "Google Health",
+        bundleIdentifier: "com.fitbit.FitbitMobile",
+        version: "Preview"
+      ),
+      valueBPM: 54,
+      startDate: Date(timeIntervalSince1970: 1_788_038_400),
+      endDate: Date(timeIntervalSince1970: 1_788_067_200),
+      syncIdentifier: nil
+    )
+  ]
 }

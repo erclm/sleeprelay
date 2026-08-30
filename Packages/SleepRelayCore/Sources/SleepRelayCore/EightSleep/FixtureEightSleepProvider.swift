@@ -28,7 +28,7 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
         score: 86,
         sleepDurationSeconds: 27_240,
         averageHeartRateBPM: 57,
-        explicitRestingHeartRateBPM: nil,
+        explicitRestingHeartRateBPM: 55,
         reportedHRVMilliseconds: 48,
         averageRespiratoryRate: 14.2,
         tossAndTurns: 19,
@@ -40,8 +40,10 @@ public actor FixtureEightSleepProvider: EightSleepProviding {
           "sessions", "sleepDuration", "sleepQualityScore",
         ],
         metricFields: [
+          EightSleepMetricField(path: "sleepQualityScore.heartRate.current", value: 55),
           EightSleepMetricField(path: "sleepQualityScore.heartRate.average", value: 57),
           EightSleepMetricField(path: "sleepQualityScore.hrv.current", value: 48),
+          EightSleepMetricField(path: "sleepQualityScore.respiratoryRate.current", value: 14.2),
           EightSleepMetricField(path: "sleepQualityScore.respiratoryRate.average", value: 14.2),
         ],
         timeSeries: [

@@ -5,14 +5,14 @@ Health. Simple, private, and transparent.
 
 ## Current status
 
-Sleep Relay is an early read-only prototype. It can:
+Sleep Relay is an early, manually controlled prototype. It can:
 
 - authenticate directly with Eight Sleep's unofficial cloud API;
 - fetch the most recent seven nights from the V2 trends endpoint;
 - display known sleep metrics, available response fields, and embedded
   time-series names and sample counts;
-- distinguish an explicit resting-heart-rate field from average sleeping heart
-  rate;
+- decode Eight's nightly reported resting heart rate separately from its
+  differently defined heart-rate average field;
 - discover heart-, HRV-, respiratory-, and RHR-related numeric field paths
   without retaining a raw Eight response;
 - probe the currently documented read-only intervals endpoint and retain only
@@ -25,24 +25,28 @@ Sleep Relay is an early read-only prototype. It can:
   respiratory rate, resting heart rate, and HRV SDNN;
 - group visible Apple Health samples by metric, sleep night, and source so gaps
   can be investigated without assuming that an empty result proves data is
-  missing; and
+  missing;
+- review and write one Eight-reported RHR sample with stable synchronization
+  metadata, skip visible Eight/Sleep Relay duplicates, warn about other visible
+  sources, and delete only Sleep Relay's own sample; and
 - label Eight Sleep HRV as RMSSD rather than incorrectly writing it as Apple
   Health SDNN.
 
-It currently has no HealthKit writer, no Eight Sleep mutation endpoints, and no
-Sleep Relay backend. The account password and short-lived access token are kept
-in memory only and disappear when the app disconnects or exits.
+It has no Eight Sleep mutation endpoints and no Sleep Relay backend. The only
+HealthKit writer is the explicitly confirmed RHR import. The account password
+and short-lived access token are kept in memory only and disappear when the app
+disconnects or exits.
 
 The live read-only path was validated locally on 2026-08-29: login succeeded
 and the app displayed the account's three available recent nights. No real
 payload was saved to the repository.
 
-The known live trends response did not contain an explicit resting-heart-rate
-field for the inspected night. Average sleeping heart rate also differed from
-the value shown as resting heart rate in the Eight app, so Sleep Relay does not
-map one to the other. The RHR Lab remains a dry-run validation tool and cannot
-write to Apple Health. The intervals response still needs live validation; no
-claim is made that it contains RHR or raw NN/RR intervals.
+For three inspected nights, `sleepQualityScore.heartRate.current` exactly
+matched the RHR shown in the Eight app (55, 51, and 51 bpm). Sleep Relay uses
+that reported value and does not derive the HealthKit write from the differently
+defined `heartRate.average` field or the experimental RHR Lab series. The
+intervals endpoint was also validated, but it exposed aggregate HRV series, not
+evidence of raw NN/RR beat intervals suitable for SDNN.
 
 Eight Sleep does not publish a supported public API. This integration is
 unofficial and may stop working when its private endpoints change.
@@ -89,27 +93,24 @@ them into an issue.
 
 The current prototype can retrieve Eight Sleep data in Simulator. Automatic
 signing for `app.sleeprelay.ios` has also been validated with a physical iPhone:
-the read-only build was signed, installed, trusted, and launched successfully.
+the app was signed, installed, trusted, and launched successfully.
 The HealthKit coverage audit is implemented, simulator-tested, signed with the
 HealthKit entitlement, and installed and launched on the paired iPhone. The
-user-triggered authorization flow and real-source results still need validation
-on the phone. The paid membership was purchased but was not yet active in Xcode
-at the time of this checkpoint; the Personal Team remains sufficient for this
-local device build.
+user-triggered RHR write, Health app readback, and deduplication behavior still
+need validation on the phone.
 
 App Store Connect requires both HealthKit purpose strings for an entitled app.
-The update-purpose text explicitly states that this build does not write or
-update Apple Health data, and the authorization request still contains an empty
-write set.
+The update-purpose text limits writes to an explicitly confirmed
+Eight-reported RHR sample. The coverage audit requests an empty write set; write
+permission is requested only from the separate RHR confirmation flow.
 
 ## TestFlight
 
 The App Store Connect record and private `Sleep Relay Internal` group were
 created on 2026-08-29. Version 0.1.0 build 1 was uploaded, passed processing,
 and was assigned to the account holder through automatic internal
-distribution. Build 2 source, containing the sanitized RHR Lab, verified
-read-only intervals probe, and report-sharing workflow, is prepared locally but
-still needs a successful App Store Connect export and upload.
+distribution. Build 3 source adds the guarded RHR import and is prepared locally
+but has not yet been archived or uploaded.
 
 On the iPhone, install Apple's TestFlight app, accept the Sleep Relay invitation
 for the same Apple Account, and install the available build. The installed

@@ -20,9 +20,9 @@ struct EightSleepPayloadDecoderTests {
           "deepDuration": 5000,
           "remDuration": 8000,
           "sleepQualityScore": {
-            "heartRate": {"average": 57},
+            "heartRate": {"current": 55, "average": 57},
             "hrv": {"current": 48, "score": 92},
-            "respiratoryRate": {"average": 14.2}
+            "respiratoryRate": {"current": 14.5, "average": 14.2}
           },
           "sessions": [{
             "id": "session-1",
@@ -46,8 +46,8 @@ struct EightSleepPayloadDecoderTests {
     #expect(night.score == 86)
     #expect(night.averageHeartRateBPM == 57)
     #expect(night.reportedHRVMilliseconds == 48)
-    #expect(night.averageRespiratoryRate == 14.2)
-    #expect(night.explicitRestingHeartRateBPM == nil)
+    #expect(night.averageRespiratoryRate == 14.5)
+    #expect(night.explicitRestingHeartRateBPM == 55)
     #expect(night.timeSeries.first?.name == "heartRate")
     #expect(night.timeSeries.first?.sampleCount == 2)
     #expect(night.timeSeries.first?.latestNumericValue == 56)
@@ -69,6 +69,20 @@ struct EightSleepPayloadDecoderTests {
 
     #expect(night.explicitRestingHeartRateBPM == 55)
     #expect(night.metricFields == [EightSleepMetricField(path: "biometrics.rhr", value: 55)])
+  }
+
+  @Test
+  func rejectsUnsafeDurationsWithoutDroppingValidValues() throws {
+    let data = Data(
+      #"{"days":[{"day":"2026-08-28","sleepDurationSeconds":"27000","lightDuration":-1,"deepDuration":172801,"remDuration":"1e300","sessions":[]}]}"#.utf8
+    )
+
+    let night = try #require(EightSleepPayloadDecoder.decodeTrends(data).first)
+
+    #expect(night.sleepDurationSeconds == 27_000)
+    #expect(night.lightSleepSeconds == nil)
+    #expect(night.deepSleepSeconds == nil)
+    #expect(night.remSleepSeconds == nil)
   }
 
   @Test

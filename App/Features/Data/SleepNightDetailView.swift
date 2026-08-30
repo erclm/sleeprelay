@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SleepNightDetailView: View {
   let night: EightSleepNight
+  let healthModel: HealthCoverageModel
   @State private var officialEightRHR = ""
 
   private var analysis: RestingHeartRateLabAnalysis {
@@ -32,13 +33,17 @@ struct SleepNightDetailView: View {
       }
 
       Section("Candidate metrics") {
-        optionalMetric("Average sleeping HR", value: night.averageHeartRateBPM, suffix: " bpm")
         optionalMetric(
-          "Explicit RHR field", value: night.discoveredRestingHeartRateBPM, suffix: " bpm")
+          "Eight HR average field", value: night.averageHeartRateBPM, suffix: " bpm")
+        optionalMetric(
+          "Eight reported RHR", value: night.discoveredRestingHeartRateBPM, suffix: " bpm")
         optionalMetric("Eight HRV (RMSSD)", value: night.reportedHRVMilliseconds, suffix: " ms")
-        optionalMetric("Respiratory rate", value: night.averageRespiratoryRate, suffix: " /min")
+        optionalMetric(
+          "Nightly respiratory rate", value: night.averageRespiratoryRate, suffix: " /min")
         optionalMetric("Tosses and turns", value: night.tossAndTurns, suffix: "")
       }
+
+      RestingHeartRateSyncSection(night: night, model: healthModel)
 
       Section("RHR Lab") {
         LabeledContent("Official Eight app RHR") {
@@ -76,7 +81,10 @@ struct SleepNightDetailView: View {
       }
 
       Section {
-        Label("Nothing on this screen is written to Apple Health.", systemImage: "hand.raised")
+        Label(
+          "Only a confirmed RHR import can write to Apple Health. All other metrics remain read-only.",
+          systemImage: "hand.raised"
+        )
           .font(.footnote)
           .foregroundStyle(.secondary)
       }
@@ -210,6 +218,9 @@ private struct MetricRow: View {
 
 #Preview {
   NavigationStack {
-    SleepNightDetailView(night: FixtureEightSleepProvider.snapshot.nights[0])
+    SleepNightDetailView(
+      night: FixtureEightSleepProvider.snapshot.nights[0],
+      healthModel: .preview
+    )
   }
 }

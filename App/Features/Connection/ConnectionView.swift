@@ -16,10 +16,10 @@ struct ConnectionView: View {
   var body: some View {
     Form {
       Section {
-        Label("Read-only prototype", systemImage: "eye")
+        Label("Eight Sleep read-only connection", systemImage: "eye")
           .font(.headline)
         Text(
-          "Sleep Relay currently fetches recent sleep data. It has no HealthKit writer and no Eight Sleep mutation endpoints."
+          "Sleep Relay fetches recent sleep data without changing Eight Sleep. Apple Health RHR imports are reviewed and confirmed separately on each night."
         )
         .font(.subheadline)
         .foregroundStyle(.secondary)

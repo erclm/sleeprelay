@@ -6,7 +6,7 @@ struct AboutView: View {
       Section("Current build") {
         Label("Eight Sleep reads only", systemImage: "arrow.down.circle")
         Label("HealthKit coverage reads only", systemImage: "heart.text.square")
-        Label("No HealthKit writes", systemImage: "heart.slash")
+        Label("Explicit RHR-only HealthKit imports", systemImage: "heart.circle")
         Label("No saved account password", systemImage: "key.slash")
         Label("No Sleep Relay server", systemImage: "externaldrive.badge.xmark")
       }
@@ -19,7 +19,7 @@ struct AboutView: View {
 
       Section("HRV safety") {
         Text(
-          "Eight Sleep reports RMSSD. Apple Health's HRV type is SDNN. Sleep Relay will not relabel one as the other."
+          "Eight Sleep and Fitbit report RMSSD. Apple Health's HRV type is SDNN. Sleep Relay shows Eight's RMSSD but does not relabel or write it as SDNN."
         )
       }
 
