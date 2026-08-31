@@ -24,6 +24,14 @@ struct SleepRelayApp: App {
       }
 
       #if INTERNAL_TOOLS
+        if ProcessInfo.processInfo.arguments.contains("-validateSavedSDNNHypothesis") {
+          precondition(
+            SavedEightSDNNEstimatorValidation.run(),
+            "The Internal saved-data SDNN hypothesis validation failed."
+          )
+          print("SLEEP_RELAY_SAVED_SDNN_VALID")
+        }
+
         if ProcessInfo.processInfo.arguments.contains("-validateLivePiezoProbeParser") {
           Task {
             let validationPassed = await LivePiezoProbeValidation.run()

@@ -119,9 +119,14 @@ RR intervals. These values are related but are not interchangeable.
 Required behavior:
 
 - never write a nightly RMSSD value as `heartRateVariabilitySDNN`;
-- never estimate SDNN from average heart rate or aggregated RMSSD values;
+- never present or write an estimate from average heart rate or aggregated
+  RMSSD as measured SDNN;
 - retain RMSSD as a clearly labeled Sleep Relay metric;
 - optionally export RMSSD as JSON or CSV without importing it into HealthKit;
+- permit an Internal-only, read-only hypothesis lab to show assumption-based
+  SDNN estimates only when it names the model, exposes model disagreement,
+  states that the span is not a confidence interval, and performs no HealthKit
+  write;
 - only unlock an SDNN writer if the live Eight payload contains raw, usable
   normal-to-normal beat intervals;
 - validate any future SDNN implementation against a trusted reference and
@@ -650,6 +655,10 @@ it.
 
 Exit criterion: either a validated genuine-SDNN implementation exists or the UI
 clearly explains why HRV remains local. There is no RMSSD-to-SDNN relabeling.
+
+The saved-data hypothesis lab is not that exit criterion. It is a transparent
+way to test whether retained RMSSD, heart-rate, and respiratory-rate context are
+useful enough to justify a future paired RR/ECG calibration study.
 
 ### Milestone 8 — release preparation
 

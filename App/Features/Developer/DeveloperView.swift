@@ -43,7 +43,7 @@
                 VStack(alignment: .leading, spacing: 4) {
                   Text(night.day)
                     .font(.headline)
-                  Text("Copy-safe payload shapes, relationship audit, RHR lab, and probes")
+                  Text("Payload audits, saved-data SDNN lab, RHR lab, and probes")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
@@ -54,7 +54,7 @@
 
         Section {
           Label(
-            "Payload structure and relationship reports are sanitized. All Developer diagnostics are read-only.",
+            "Payload reports are sanitized. The saved-data SDNN lab and all Developer diagnostics are read-only.",
             systemImage: "hand.raised"
           )
           .font(.footnote)
@@ -313,6 +313,8 @@
             .foregroundStyle(.secondary)
           }
         }
+
+        SavedEightSDNNEstimationSection(night: night)
 
         Section("Live Pod piezo probe") {
           LabeledContent("Status", value: livePiezoStatusLabel)
