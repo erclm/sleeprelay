@@ -40,8 +40,8 @@ if [[ ! -f "${release_binary}" ]]; then
   exit 1
 fi
 if strings "${release_binary}" \
-  | rg 'live-piezo-probe-v[0-9]+|developer\.livePiezo|SLEEP_RELAY_LIVE_PIEZO_VALID' \
+  | rg 'live-piezo-probe-v[0-9]+|developer\.livePiezo|SLEEP_RELAY_LIVE_PIEZO_VALID|saved-sdnn-hypothesis-v[0-9]+|saved-respiratory-sinusoid-v[0-9]+|SavedEightSDNN|developer\.savedSDNN|Saved-data SDNN estimation lab|SLEEP_RELAY_SAVED_SDNN_VALID' \
     >/dev/null; then
-  print -u2 "Internal live-piezo diagnostics leaked into the Release binary."
+  print -u2 "Internal Developer diagnostics leaked into the Release binary."
   exit 1
 fi

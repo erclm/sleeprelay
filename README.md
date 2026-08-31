@@ -27,6 +27,10 @@ Sleep Relay is an early, explicitly controlled prototype. It can:
   sensor values;
 - run a versioned, research-only RHR lab over timestamped heart-rate samples and
   compare it with a value manually read from the Eight app;
+- run an Internal-only, read-only saved-data SDNN estimation lab that compares a
+  respiratory-sinusoid model with explicit adjacent-interval correlation
+  scenarios, shows their disagreement, inventories relevant retained Eight
+  fields, and labels every result as estimated rather than measured;
 - copy or share a structure-only diagnostic that excludes the night date,
   health values, credentials, tokens, recognized account/device/session
   identifiers, exact timestamps, raw samples, and raw payloads; the report asks
@@ -73,6 +77,12 @@ units, so Sleep Relay treats the endpoint only as a research lead. The Nightly
 probe does not retain the waveform, calculate HRV, or write Apple Health. A real
 SDNN path remains gated on recovering and independently validating genuine beat
 intervals.
+
+The saved-data SDNN lab does not change that gate. It operates only on an
+already decoded night, makes no live request, and never writes HealthKit. Its
+scenario span is not a confidence interval and can be wrong outside the model's
+assumptions; paired RR/ECG data is still required to calibrate or validate a
+personal estimator.
 
 The first on-device probe used the completed-night session device and received
 HTTP 404. That result does not prove the Pod lacks raw data: current Eight
