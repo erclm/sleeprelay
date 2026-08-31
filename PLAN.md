@@ -599,6 +599,14 @@ derived RHR Lab remains disabled for HealthKit writes.
 - [x] Add an Internal-only, foreground, aggregate-only probe for the private
   authenticated live piezo stream found in Eight Sleep's Android app. It does
   not retain response text, sensor values, identifiers, or absolute timestamps.
+- [x] Record the first physical-device result: the completed-night session
+  identity returned HTTP 404, which is inconclusive because it may not be the
+  current household's physical Pod identity.
+- [x] Add a bounded household resolver that selects one explicit `pod` rather
+  than `pillow`, rejects ambiguous/conflicting IDs, validates the echoed device
+  and online state through `client-api`, and makes at most one live request.
+- [x] Distinguish an HTTP 2xx with no usable piezo block from a response that
+  actually contains a nonempty block with at least one finite sample.
 - [ ] Determine on the user's Pod whether live piezo sample blocks are available,
   continuous, timed precisely enough for beat recovery, and present outside the
   onboarding test-drive flow.
@@ -773,7 +781,9 @@ Initial decisions:
 - **Accepted for validation:** the app shares only a sanitized trends summary;
   user credentials and raw responses are never requested in chat.
 - **Accepted for prototype:** iOS 17 minimum deployment target.
-- **Pending evidence:** live Eight payload shape and RHR semantics.
+- **Pending evidence:** whether the validated household Pod returns live piezo
+  blocks and, if so, their continuity, intra-block timing, and physiological
+  meaning.
 - **Pending decision:** final bundle identifier and signing team.
 
 ## 13. How to build this with Codex

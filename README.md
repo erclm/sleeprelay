@@ -19,9 +19,12 @@ Sleep Relay is an early, explicitly controlled prototype. It can:
   sanitized field names, JSON kinds, container counts, broad cadence buckets,
   matched scalar metrics, and numeric series statistics;
 - run an Internal-only, user-initiated 15-second probe of Eight Sleep's private
-  live sensor stream and retain only transport categories, event counts, sample
-  block sizes, and relative timing aggregates—not identifiers, timestamps,
-  response text, or sensor values;
+  live sensor stream; it resolves the authenticated account's current household
+  `pod` identity separately from `pillow`, validates the echoed device and
+  online state, makes at most one live request, and retains only fixed identity
+  relationships, transport categories, event counts, sample-block sizes, and
+  relative timing aggregates—not identifiers, timestamps, response text, or
+  sensor values;
 - run a versioned, research-only RHR lab over timestamped heart-rate samples and
   compare it with a value manually read from the Eight app;
 - copy or share a structure-only diagnostic that excludes the night date,
@@ -70,6 +73,14 @@ units, so Sleep Relay treats the endpoint only as a research lead. The Nightly
 probe does not retain the waveform, calculate HRV, or write Apple Health. A real
 SDNN path remains gated on recovering and independently validating genuine beat
 intervals.
+
+The first on-device probe used the completed-night session device and received
+HTTP 404. That result does not prove the Pod lacks raw data: current Eight
+accounts can expose separate household Pod and pillow identities, while the
+official Android Test Drive passes a physical onboarding device identity. The
+follow-up probe therefore resolves the unique explicit household Pod, rejects
+ambiguous or conflicting identities, validates it through the device endpoint,
+and reports a 2xx-without-piezo response separately from observed sample blocks.
 
 Eight Sleep does not publish a supported public API. This integration is
 unofficial and may stop working when its private endpoints change.
