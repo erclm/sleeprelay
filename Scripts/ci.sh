@@ -14,6 +14,9 @@ xcodegen generate
 
 swift test --package-path Packages/SleepRelayCore
 
+ci_derived_data="$(mktemp -d "${TMPDIR:-/tmp}/sleeprelay-ci.XXXXXX")"
+trap 'rm -rf -- "${ci_derived_data}"' EXIT
+
 for configuration in Release Internal; do
   scheme="SleepRelay"
   if [[ "${configuration}" == "Internal" ]]; then
@@ -26,6 +29,19 @@ for configuration in Release Internal; do
     -scheme "${scheme}" \
     -configuration "${configuration}" \
     -destination 'generic/platform=iOS Simulator' \
+    -derivedDataPath "${ci_derived_data}" \
     CODE_SIGNING_ALLOWED=NO \
     build
 done
+
+release_binary="${ci_derived_data}/Build/Products/Release-iphonesimulator/Sleep Relay.app/Sleep Relay"
+if [[ ! -f "${release_binary}" ]]; then
+  print -u2 "Expected Release binary was not produced."
+  exit 1
+fi
+if strings "${release_binary}" \
+  | rg 'live-piezo-probe-v[0-9]+|developer\.livePiezo|SLEEP_RELAY_LIVE_PIEZO_VALID' \
+    >/dev/null; then
+  print -u2 "Internal live-piezo diagnostics leaked into the Release binary."
+  exit 1
+fi

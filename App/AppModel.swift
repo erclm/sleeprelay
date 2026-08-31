@@ -310,7 +310,7 @@ final class AppModel {
     /// Runs a bounded, foreground-only diagnostic against Eight Sleep's private
     /// live sensor stream. Credentials and identifiers stay scoped to this call;
     /// only a value-free aggregate report is returned to the Developer UI.
-    func probeLivePiezo(for night: EightSleepNight) async throws -> LivePiezoProbeSummary {
+    func probeLivePiezo(for night: EightSleepNight) async throws -> LivePiezoProbeResult {
       loadSavedCredentialsIfNeeded()
       guard let credentials = activeCredentials else {
         throw LivePiezoProbeError.missingCredentials
